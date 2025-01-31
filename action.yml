@@ -1,8 +1,9 @@
 name: TestChimp Test Runner
 shell: bash
 description: Runs TestChimp tests and polls for results.
-icon: activity
-color: purple
+branding:
+  icon: "activity"
+  color: "purple"
 inputs:
   project-id:
     description: 'Project ID for TestChimp'
