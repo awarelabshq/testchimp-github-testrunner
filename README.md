@@ -1,7 +1,5 @@
 # **TestChimp GitHub Test Runner Action**  
 
-![GitHub release](https://img.shields.io/github/v/release/awarelabshq/testchimp-github-testrunner)  
-![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/awarelabshq/testchimp-github-testrunner/test.yml)  
 ![License](https://img.shields.io/github/license/awarelabshq/testchimp-github-testrunner)  
 
 A GitHub Action that triggers test runs on the **TestChimp** platform and polls for results. Supports both **API** and **UI tests**.
