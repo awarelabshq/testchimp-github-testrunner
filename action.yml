@@ -83,6 +83,7 @@ runs:
             -d "{\"batch_invocation_id\":\"$invocationBatchId\"}")
           
           invocation_results=$(echo $response | jq -c '.invocationResults[]')
+          result_view_url=$(echo $response | jq -c '.resultViewUrl')
           all_terminal=true
 
           while IFS= read -r result; do
@@ -127,10 +128,10 @@ runs:
             done <<< "$invocation_results"
 
             if $any_failed; then
-              echo "Some tests failed"
+              echo "Some tests failed. View results at $result_view_url"
               exit 1
             else
-              echo "All tests passed"
+              echo "All tests passed. View results at $result_view_url"
               exit 0
             fi
           else
