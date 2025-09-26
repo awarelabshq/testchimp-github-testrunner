@@ -74,13 +74,8 @@ runs:
       shell: bash
       working-directory: ${{ github.action_path }}
     
-    - name: Build action
-      run: npm run build
-      shell: bash
-      working-directory: ${{ github.action_path }}
-    
     - name: Run TestChimp Action
-      run: node dist/index.js
+      run: npx ts-node src/index.ts
       shell: bash
       working-directory: ${{ github.action_path }}
 outputs:
