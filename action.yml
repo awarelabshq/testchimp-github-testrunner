@@ -145,8 +145,18 @@ runs:
         export TESTCHIMP_ENV="${{ env.TESTCHIMP_ENV }}"
         export NODE_ENV="${{ env.NODE_ENV }}"
         
-        # Run the action (outputs are written directly to GITHUB_OUTPUT by TypeScript)
+        # Run the action (outputs are written to environment variables by TypeScript)
         npx ts-node src/index.ts
+        
+        # Set outputs from environment variables
+        echo "status=${TESTCHIMP_STATUS}" >> $GITHUB_OUTPUT
+        echo "test-count=${TESTCHIMP_TEST_COUNT}" >> $GITHUB_OUTPUT
+        echo "success-count=${TESTCHIMP_SUCCESS_COUNT}" >> $GITHUB_OUTPUT
+        echo "failure-count=${TESTCHIMP_FAILURE_COUNT}" >> $GITHUB_OUTPUT
+        echo "repaired-count=${TESTCHIMP_REPAIRED_COUNT}" >> $GITHUB_OUTPUT
+        echo "repaired-above-threshold=${TESTCHIMP_REPAIRED_ABOVE_THRESHOLD}" >> $GITHUB_OUTPUT
+        echo "repaired-below-threshold=${TESTCHIMP_REPAIRED_BELOW_THRESHOLD}" >> $GITHUB_OUTPUT
+        echo "success-criteria-used=${TESTCHIMP_SUCCESS_CRITERIA_USED}" >> $GITHUB_OUTPUT
       shell: bash
       working-directory: ${{ github.action_path }}
 outputs:

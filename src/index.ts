@@ -160,23 +160,15 @@ async function run(): Promise<void> {
       core.setOutput('repaired-below-threshold', '0');
       core.setOutput('success-criteria-used', successCriteria);
       
-      // Write outputs directly to GitHub Actions output file for composite action
-      const fs = require('fs');
-      const githubOutputPath = process.env.GITHUB_OUTPUT;
-      if (githubOutputPath) {
-        const outputs = [
-          `status=skipped`,
-          `test-count=0`,
-          `success-count=0`,
-          `failure-count=0`,
-          `repaired-count=0`,
-          `repaired-above-threshold=0`,
-          `repaired-below-threshold=0`,
-          `success-criteria-used=${successCriteria}`
-        ].join('\n');
-        
-        fs.appendFileSync(githubOutputPath, outputs + '\n');
-      }
+      // Write outputs to environment variables for composite action
+      process.env.TESTCHIMP_STATUS = 'skipped';
+      process.env.TESTCHIMP_TEST_COUNT = '0';
+      process.env.TESTCHIMP_SUCCESS_COUNT = '0';
+      process.env.TESTCHIMP_FAILURE_COUNT = '0';
+      process.env.TESTCHIMP_REPAIRED_COUNT = '0';
+      process.env.TESTCHIMP_REPAIRED_ABOVE_THRESHOLD = '0';
+      process.env.TESTCHIMP_REPAIRED_BELOW_THRESHOLD = '0';
+      process.env.TESTCHIMP_SUCCESS_CRITERIA_USED = successCriteria;
       return;
     }
 
@@ -269,23 +261,15 @@ async function run(): Promise<void> {
     core.setOutput('repaired-below-threshold', repairedBelowThresholdStr);
     core.setOutput('success-criteria-used', successCriteriaUsed);
     
-    // Write outputs directly to GitHub Actions output file for composite action
-    const fs = require('fs');
-    const githubOutputPath = process.env.GITHUB_OUTPUT;
-    if (githubOutputPath) {
-      const outputs = [
-        `status=${status}`,
-        `test-count=${testCount}`,
-        `success-count=${successCountStr}`,
-        `failure-count=${failureCountStr}`,
-        `repaired-count=${repairedCountStr}`,
-        `repaired-above-threshold=${repairedAboveThresholdStr}`,
-        `repaired-below-threshold=${repairedBelowThresholdStr}`,
-        `success-criteria-used=${successCriteriaUsed}`
-      ].join('\n');
-      
-      fs.appendFileSync(githubOutputPath, outputs + '\n');
-    }
+    // Write outputs to environment variables for composite action
+    process.env.TESTCHIMP_STATUS = status;
+    process.env.TESTCHIMP_TEST_COUNT = testCount;
+    process.env.TESTCHIMP_SUCCESS_COUNT = successCountStr;
+    process.env.TESTCHIMP_FAILURE_COUNT = failureCountStr;
+    process.env.TESTCHIMP_REPAIRED_COUNT = repairedCountStr;
+    process.env.TESTCHIMP_REPAIRED_ABOVE_THRESHOLD = repairedAboveThresholdStr;
+    process.env.TESTCHIMP_REPAIRED_BELOW_THRESHOLD = repairedBelowThresholdStr;
+    process.env.TESTCHIMP_SUCCESS_CRITERIA_USED = successCriteriaUsed;
 
     // Summary
     core.info(`TestChimp: Execution complete - ${successCount}/${allTestFiles.length} tests passed`);
