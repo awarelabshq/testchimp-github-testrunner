@@ -187,21 +187,16 @@ export class TestChimpService {
         // Read file content
         const content = fs.readFileSync(filePath, 'utf8');
         
-        // Check for TestChimp markers
+        // Check for TestChimp markers - simple string search
         const testChimpMarkers = [
-          /\/\/ TestChimp:.*step/i,
-          /\/\* TestChimp:.*step \*\//i,
-          /\/\/ Step \d+:/i,
-          /\/\* Step \d+: \*\//i,
-          /testchimp.*step/i,
-          /\/\/ AI.*repair/i,
-          /\/\* AI.*repair \*\//i,
-          /\/\/ TestChimp.*Managed/i,
-          /\/\* TestChimp.*Managed.*\*\//i,
-          /TestChimp.*Managed.*Test/i
+          'TestChimp:',
+          'TestChimp Managed Test',
+          'Step ',
+          'AI repair',
+          'testchimp'
         ];
         
-        return testChimpMarkers.some(marker => marker.test(content));
+        return testChimpMarkers.some(marker => content.toLowerCase().includes(marker.toLowerCase()));
       } catch (error) {
         return false;
       }
