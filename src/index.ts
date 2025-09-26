@@ -21,35 +21,6 @@ function getBackendUrl(): string {
 
 async function run(): Promise<void> {
   try {
-    // Debug: Check if we're in GitHub Actions context
-    core.info(`TestChimp: Debug - GITHUB_ACTIONS: ${process.env.GITHUB_ACTIONS}`);
-    core.info(`TestChimp: Debug - GITHUB_WORKFLOW: ${process.env.GITHUB_WORKFLOW}`);
-    core.info(`TestChimp: Debug - GITHUB_REPOSITORY: ${process.env.GITHUB_REPOSITORY}`);
-    
-    // Debug: Check if secrets are available in environment
-    core.info(`TestChimp: Debug - TESTCHIMP_API_KEY in env: ${!!process.env.TESTCHIMP_API_KEY}`);
-    core.info(`TestChimp: Debug - TESTCHIMP_PROJECT_ID in env: ${!!process.env.TESTCHIMP_PROJECT_ID}`);
-    
-    // Debug: Check INPUT_* environment variables
-    core.info(`TestChimp: Debug - INPUT_API_KEY in env: ${!!process.env.INPUT_API_KEY}`);
-    core.info(`TestChimp: Debug - INPUT_PROJECT_ID in env: ${!!process.env.INPUT_PROJECT_ID}`);
-    core.info(`TestChimp: Debug - INPUT_TEST_TYPE in env: ${!!process.env.INPUT_TEST_TYPE}`);
-    
-    // Debug: Show all INPUT_* variables
-    const inputVars = Object.keys(process.env).filter(key => key.startsWith('INPUT_'));
-    core.info(`TestChimp: Debug - Available INPUT_* variables: ${inputVars.join(', ')}`);
-    
-    // Debug: Check if we can access core at all
-    core.info(`TestChimp: Debug - core object available: ${!!core}`);
-    core.info(`TestChimp: Debug - core.getInput function available: ${!!core.getInput}`);
-    
-    // Debug: Try to get a simple input that should always be there
-    try {
-      const testInput = core.getInput('test-type');
-      core.info(`TestChimp: Debug - test-type input test: ${testInput}`);
-    } catch (error) {
-      core.info(`TestChimp: Debug - Error getting test-type input: ${error instanceof Error ? error.message : String(error)}`);
-    }
 
     // Helper function to get input from either core.getInput or environment variables
     const getInput = (name: string, defaultValue: string = ''): string => {
@@ -89,19 +60,6 @@ async function run(): Promise<void> {
       return path.isAbsolute(dir) ? dir : path.join(workspace, dir);
     });
 
-    // Debug: Show all available inputs
-    const allInputs = [
-      'api-key', 'project-id', 'testchimp-endpoint', 'test-type', 'test-case-regex', 
-      'test-suite-regex', 'test-directory', 'recursive', 'include-pattern', 'exclude-pattern',
-      'mode', 'deflake-runs', 'headless', 'success-criteria', 'repair-confidence-threshold',
-      'create-pr-on-repair', 'pr-title', 'pr-body'
-    ];
-    
-    core.info('TestChimp: Debug - Available inputs:');
-    allInputs.forEach(input => {
-      const value = core.getInput(input);
-      core.info(`  ${input}: ${value ? 'present' : 'missing'} (length: ${value ? value.length : 0})`);
-    });
 
     // Set up authentication configuration
     let authConfig = createAuthConfigFromEnv();
@@ -111,11 +69,6 @@ async function run(): Promise<void> {
       const apiKey = getInput('api-key');
       const projectId = getInput('project-id');
       
-      // Debug: Log what we received
-      core.info(`TestChimp: Debug - api-key present: ${!!apiKey}`);
-      core.info(`TestChimp: Debug - project-id present: ${!!projectId}`);
-      core.info(`TestChimp: Debug - api-key length: ${apiKey ? apiKey.length : 0}`);
-      core.info(`TestChimp: Debug - project-id length: ${projectId ? projectId.length : 0}`);
       
       if (!apiKey || !projectId) {
         core.setFailed('TestChimp: Both api-key and project-id are required for CI authentication');
