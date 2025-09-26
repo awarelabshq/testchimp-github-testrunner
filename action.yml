@@ -65,6 +65,11 @@ inputs:
     description: 'Body for the pull request (optional)'
     required: false
     default: 'This PR contains test files that were automatically repaired by TestChimp AI.'
+  
+  headless:
+    description: 'Run browser in headless mode (recommended for CI/CD)'
+    required: false
+    default: 'true'
 runs:
   using: 'composite'
   steps:

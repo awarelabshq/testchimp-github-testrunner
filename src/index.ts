@@ -70,7 +70,7 @@ async function run(): Promise<void> {
     const excludePattern = getInput('exclude-pattern', '**/node_modules/**');
     const mode = getInput('mode', 'RUN_WITH_AI_REPAIR');
     const deflakeRuns = parseInt(getInput('deflake-runs', '3'));
-    const headless = getInput('headless', 'false') === 'true';
+    const headless = getInput('headless', 'true') === 'true';
     const successCriteria = getInput('success-criteria', 'ORIGINAL_SUCCESS') as SuccessCriteria || SuccessCriteria.ORIGINAL_SUCCESS;
     const repairConfidenceThreshold = parseInt(getInput('repair-confidence-threshold', '4'));
 
