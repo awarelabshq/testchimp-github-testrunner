@@ -30,6 +30,15 @@ async function run(): Promise<void> {
     core.info(`TestChimp: Debug - TESTCHIMP_API_KEY in env: ${!!process.env.TESTCHIMP_API_KEY}`);
     core.info(`TestChimp: Debug - TESTCHIMP_PROJECT_ID in env: ${!!process.env.TESTCHIMP_PROJECT_ID}`);
     
+    // Debug: Check INPUT_* environment variables
+    core.info(`TestChimp: Debug - INPUT_API_KEY in env: ${!!process.env.INPUT_API_KEY}`);
+    core.info(`TestChimp: Debug - INPUT_PROJECT_ID in env: ${!!process.env.INPUT_PROJECT_ID}`);
+    core.info(`TestChimp: Debug - INPUT_TEST_TYPE in env: ${!!process.env.INPUT_TEST_TYPE}`);
+    
+    // Debug: Show all INPUT_* variables
+    const inputVars = Object.keys(process.env).filter(key => key.startsWith('INPUT_'));
+    core.info(`TestChimp: Debug - Available INPUT_* variables: ${inputVars.join(', ')}`);
+    
     // Debug: Check if we can access core at all
     core.info(`TestChimp: Debug - core object available: ${!!core}`);
     core.info(`TestChimp: Debug - core.getInput function available: ${!!core.getInput}`);
