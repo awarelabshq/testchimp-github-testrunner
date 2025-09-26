@@ -111,9 +111,7 @@ export class LLMFacade {
     try {
       const authHeaders = getAuthHeaders(this.authConfig);
       const url = `${this.backendUrl}/localagent/call_llm`;
-      console.log(`Making LLM call to: ${url}`);
-      console.log(`Request:`, request);
-      console.log(`Auth headers:`, authHeaders);
+      console.log(`repairing step`);
       
       const response = await axios.post(url, request, {
         headers: {
