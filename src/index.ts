@@ -120,8 +120,8 @@ async function run(): Promise<void> {
     core.info(`TestChimp: Using backend URL: ${backendUrl}`);
 
     // Initialize TestChimp service with CI file handler (creates PRs instead of direct writes)
-    // Use the test directory as the base path for relative path resolution
-    const ciFileHandler = new CIFileHandler('./testchimp-artifacts', testDirectory);
+    // Use the first test directory as the base path for relative path resolution
+    const ciFileHandler = new CIFileHandler('./testchimp-artifacts', testDirectories[0]);
     const testChimpService = new TestChimpService(ciFileHandler, authConfig || undefined, backendUrl);
     await testChimpService.initialize();
 
@@ -163,7 +163,9 @@ async function run(): Promise<void> {
       try {
         // Convert absolute path to relative path for the file handler
         const path = require('path');
-        const relativeTestFile = path.relative(testDirectory, testFile);
+        // Find which directory this test file belongs to
+        const testDir = testDirectories.find(dir => testFile.startsWith(dir)) || testDirectories[0];
+        const relativeTestFile = path.relative(testDir, testFile);
         
         const request = {
           scriptFilePath: relativeTestFile,
@@ -225,7 +227,7 @@ async function run(): Promise<void> {
     core.setOutput('success-criteria-used', successCriteria);
 
     // Summary
-    core.info(`TestChimp: Execution complete - ${successCount}/${testFiles.length} tests passed`);
+    core.info(`TestChimp: Execution complete - ${successCount}/${allTestFiles.length} tests passed`);
     if (repairedCount > 0) {
       core.info(`TestChimp: ${repairedCount} tests were repaired: ${repairedAboveThreshold} above threshold (≥${repairConfidenceThreshold}), ${repairedBelowThreshold} below threshold (<${repairConfidenceThreshold})`);
     }
