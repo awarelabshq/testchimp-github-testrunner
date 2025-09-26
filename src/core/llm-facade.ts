@@ -129,7 +129,16 @@ export class LLMFacade {
         throw new Error('Invalid response from LLM backend');
       }
     } catch (error: any) {
-      console.error('LLM call failed:', error);
+      if (axios.isAxiosError(error)) {
+        console.error('LLM call failed:', error.message);
+        console.error('Status:', error.response?.status);
+        console.error('Status Text:', error.response?.statusText);
+        console.error('Response Data:', error.response?.data);
+        console.error('Request URL:', error.config?.url);
+        console.error('Request Headers:', error.config?.headers);
+      } else {
+        console.error('LLM call failed:', error);
+      }
       throw new Error(`LLM call failed: ${error.message}`);
     }
   }
