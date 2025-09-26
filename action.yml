@@ -75,7 +75,41 @@ runs:
       working-directory: ${{ github.action_path }}
     
     - name: Run TestChimp Action
-      run: npx ts-node src/index.ts
+      run: |
+        # Pass all GitHub Actions environment variables to ts-node
+        export GITHUB_ACTIONS=true
+        export GITHUB_WORKFLOW="${{ github.workflow }}"
+        export GITHUB_REPOSITORY="${{ github.repository }}"
+        export GITHUB_REF="${{ github.ref }}"
+        export GITHUB_SHA="${{ github.sha }}"
+        export GITHUB_HEAD_REF="${{ github.head_ref }}"
+        export GITHUB_BASE_REF="${{ github.base_ref }}"
+        export GITHUB_EVENT_NAME="${{ github.event_name }}"
+        export GITHUB_WORKSPACE="${{ github.workspace }}"
+        export GITHUB_ACTION_PATH="${{ github.action_path }}"
+        
+        # Pass all input variables
+        export INPUT_API_KEY="${{ inputs.api-key }}"
+        export INPUT_PROJECT_ID="${{ inputs.project-id }}"
+        export INPUT_TESTCHIMP_ENDPOINT="${{ inputs.testchimp-endpoint }}"
+        export INPUT_TEST_TYPE="${{ inputs.test-type }}"
+        export INPUT_TEST_CASE_REGEX="${{ inputs.test-case-regex }}"
+        export INPUT_TEST_SUITE_REGEX="${{ inputs.test-suite-regex }}"
+        export INPUT_TEST_DIRECTORY="${{ inputs.test-directory }}"
+        export INPUT_RECURSIVE="${{ inputs.recursive }}"
+        export INPUT_INCLUDE_PATTERN="${{ inputs.include-pattern }}"
+        export INPUT_EXCLUDE_PATTERN="${{ inputs.exclude-pattern }}"
+        export INPUT_MODE="${{ inputs.mode }}"
+        export INPUT_DEFLAKE_RUNS="${{ inputs.deflake-runs }}"
+        export INPUT_HEADLESS="${{ inputs.headless }}"
+        export INPUT_SUCCESS_CRITERIA="${{ inputs.success-criteria }}"
+        export INPUT_REPAIR_CONFIDENCE_THRESHOLD="${{ inputs.repair-confidence-threshold }}"
+        export INPUT_CREATE_PR_ON_REPAIR="${{ inputs.create-pr-on-repair }}"
+        export INPUT_PR_TITLE="${{ inputs.pr-title }}"
+        export INPUT_PR_BODY="${{ inputs.pr-body }}"
+        
+        # Run the action
+        npx ts-node src/index.ts
       shell: bash
       working-directory: ${{ github.action_path }}
 outputs:
