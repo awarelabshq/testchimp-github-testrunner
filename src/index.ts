@@ -30,6 +30,18 @@ async function run(): Promise<void> {
     core.info(`TestChimp: Debug - TESTCHIMP_API_KEY in env: ${!!process.env.TESTCHIMP_API_KEY}`);
     core.info(`TestChimp: Debug - TESTCHIMP_PROJECT_ID in env: ${!!process.env.TESTCHIMP_PROJECT_ID}`);
     
+    // Debug: Check if we can access core at all
+    core.info(`TestChimp: Debug - core object available: ${!!core}`);
+    core.info(`TestChimp: Debug - core.getInput function available: ${!!core.getInput}`);
+    
+    // Debug: Try to get a simple input that should always be there
+    try {
+      const testInput = core.getInput('test-type');
+      core.info(`TestChimp: Debug - test-type input test: ${testInput}`);
+    } catch (error) {
+      core.info(`TestChimp: Debug - Error getting test-type input: ${error.message}`);
+    }
+    
     // Get inputs
     const testDirectory = core.getInput('test-directory') || 'tests';
     const recursive = core.getInput('recursive') === 'true';
