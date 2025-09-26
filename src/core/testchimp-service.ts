@@ -187,16 +187,8 @@ export class TestChimpService {
         // Read file content
         const content = fs.readFileSync(filePath, 'utf8');
         
-        // Check for TestChimp markers - simple string search
-        const testChimpMarkers = [
-          'TestChimp:',
-          'TestChimp Managed Test',
-          'Step ',
-          'AI repair',
-          'testchimp'
-        ];
-        
-        return testChimpMarkers.some(marker => content.toLowerCase().includes(marker.toLowerCase()));
+        // Check for TestChimp managed test marker
+        return content.toLowerCase().includes('testchimp managed test');
       } catch (error) {
         return false;
       }
