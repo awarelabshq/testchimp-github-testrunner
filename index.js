@@ -9,6 +9,12 @@ if (process.env.GITHUB_ACTIONS === 'true') {
   const actionPath = process.env.GITHUB_ACTION_PATH || __dirname;
   
   try {
+    console.log('📦 Installing dependencies...');
+    execSync('npm ci', { 
+      cwd: actionPath, 
+      stdio: 'inherit' 
+    });
+    
     console.log('🔨 Building TestChimp Action...');
     execSync('npm run build', { 
       cwd: actionPath, 
