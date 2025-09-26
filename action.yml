@@ -145,8 +145,11 @@ runs:
         export TESTCHIMP_ENV="${{ env.TESTCHIMP_ENV }}"
         export NODE_ENV="${{ env.NODE_ENV }}"
         
+        # Change to repository directory for git operations
+        cd ${{ github.workspace }}
+        
         # Run the action and set outputs
-        npx ts-node src/index.ts
+        npx ts-node ${{ github.action_path }}/src/index.ts
         
         # Set outputs from JSON file
         if [ -f "testchimp-outputs.json" ]; then
@@ -169,7 +172,6 @@ runs:
           echo "success-criteria-used=${SUCCESS_CRITERIA_USED}" >> $GITHUB_OUTPUT
         fi
       shell: bash
-      working-directory: ${{ github.action_path }}
 outputs:
   status:
     description: 'Overall execution status'
