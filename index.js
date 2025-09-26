@@ -5,7 +5,7 @@ const path = require('path');
 
 // Check if we're in a GitHub Actions environment
 if (process.env.GITHUB_ACTIONS === 'true') {
-  // In GitHub Actions, build and run
+  // In GitHub Actions, run TypeScript directly to avoid bundling issues
   const actionPath = process.env.GITHUB_ACTION_PATH || __dirname;
   
   try {
@@ -15,14 +15,12 @@ if (process.env.GITHUB_ACTIONS === 'true') {
       stdio: 'inherit' 
     });
     
-    console.log('🔨 Building TestChimp Action...');
-    execSync('npm run build', { 
+    console.log('🚀 Running TestChimp Action (TypeScript)...');
+    // Run TypeScript directly instead of building
+    execSync('npx ts-node src/index.ts', { 
       cwd: actionPath, 
       stdio: 'inherit' 
     });
-    
-    console.log('🚀 Running TestChimp Action...');
-    require(path.join(actionPath, 'dist', 'index.js'));
   } catch (error) {
     console.error('❌ TestChimp Action failed:', error.message);
     process.exit(1);
