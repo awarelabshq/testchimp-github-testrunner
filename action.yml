@@ -67,7 +67,7 @@ inputs:
     default: 'This PR contains test files that were automatically repaired by TestChimp AI.'
   
   headless:
-    description: 'Run browser in headless mode (recommended for CI/CD)'
+    description: 'Run browser in headless mode (automatically forced to true in GitHub Actions)'
     required: false
     default: 'true'
 runs:

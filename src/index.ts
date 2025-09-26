@@ -70,7 +70,13 @@ async function run(): Promise<void> {
     const excludePattern = getInput('exclude-pattern', '**/node_modules/**');
     const mode = getInput('mode', 'RUN_WITH_AI_REPAIR');
     const deflakeRuns = parseInt(getInput('deflake-runs', '3'));
-    const headless = getInput('headless', 'true') === 'true';
+    // In GitHub Actions, always run headless (no display server available)
+    const isGitHubActions = process.env.GITHUB_ACTIONS === 'true';
+    const headless = isGitHubActions ? true : (getInput('headless', 'true') === 'true');
+    
+    if (isGitHubActions) {
+      core.info('TestChimp: Running in GitHub Actions - forcing headless mode (no display server available)');
+    }
     const successCriteria = getInput('success-criteria', 'ORIGINAL_SUCCESS') as SuccessCriteria || SuccessCriteria.ORIGINAL_SUCCESS;
     const repairConfidenceThreshold = parseInt(getInput('repair-confidence-threshold', '4'));
 
