@@ -294,7 +294,8 @@ export class GitHubCIPipeline implements CIPipeline {
     
     const title = this.config.pullRequest.titleTemplate
       .replace('{count}', repairedCount.toString())
-      .replace('{summary}', testSummary);
+      .replace('{summary}', testSummary)
+      .replace('{count,plural,one{} other{s}}', repairedCount === 1 ? '' : 's');
 
     const description = this.config.pullRequest.descriptionTemplate
       .replace('{count}', repairedCount.toString())
