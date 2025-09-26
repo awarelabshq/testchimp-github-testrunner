@@ -42,6 +42,12 @@ async function run(): Promise<void> {
       const apiKey = core.getInput('api-key');
       const projectId = core.getInput('project-id');
       
+      // Debug: Log what we received
+      core.info(`TestChimp: Debug - api-key present: ${!!apiKey}`);
+      core.info(`TestChimp: Debug - project-id present: ${!!projectId}`);
+      core.info(`TestChimp: Debug - api-key length: ${apiKey ? apiKey.length : 0}`);
+      core.info(`TestChimp: Debug - project-id length: ${projectId ? projectId.length : 0}`);
+      
       if (!apiKey || !projectId) {
         core.setFailed('TestChimp: Both api-key and project-id are required for CI authentication');
         return;
