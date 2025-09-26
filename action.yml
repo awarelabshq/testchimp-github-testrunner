@@ -79,7 +79,18 @@ runs:
       shell: bash
       working-directory: ${{ github.action_path }}
     
+    - name: Cache Playwright browsers
+      uses: actions/cache@v4
+      id: playwright-cache
+      with:
+        path: |
+          ~/.cache/ms-playwright
+        key: playwright-browsers-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          playwright-browsers-${{ runner.os }}-
+    
     - name: Install Playwright browsers
+      if: steps.playwright-cache.outputs.cache-hit != 'true'
       run: npx playwright install --with-deps
       shell: bash
       working-directory: ${{ github.action_path }}
