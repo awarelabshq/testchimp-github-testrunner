@@ -51,16 +51,16 @@ async function run(): Promise<void> {
       core.info(`TestChimp: Debug - Error getting test-type input: ${error instanceof Error ? error.message : String(error)}`);
     }
     
-    // Get inputs
-    const testDirectory = core.getInput('test-directory') || 'tests';
-    const recursive = core.getInput('recursive') === 'true';
-    const includePattern = core.getInput('include-pattern') || '**/*.spec.{js,ts}';
-    const excludePattern = core.getInput('exclude-pattern') || '**/node_modules/**';
-    const mode = core.getInput('mode') || 'RUN_WITH_AI_REPAIR';
-    const deflakeRuns = parseInt(core.getInput('deflake-runs') || '3');
-    const headless = core.getInput('headless') === 'true';
-    const successCriteria = core.getInput('success-criteria') as SuccessCriteria || SuccessCriteria.ORIGINAL_SUCCESS;
-    const repairConfidenceThreshold = parseInt(core.getInput('repair-confidence-threshold') || '4');
+    // Get inputs using helper function
+    const testDirectory = getInput('test-directory', 'tests');
+    const recursive = getInput('recursive', 'false') === 'true';
+    const includePattern = getInput('include-pattern', '**/*.spec.{js,ts}');
+    const excludePattern = getInput('exclude-pattern', '**/node_modules/**');
+    const mode = getInput('mode', 'RUN_WITH_AI_REPAIR');
+    const deflakeRuns = parseInt(getInput('deflake-runs', '3'));
+    const headless = getInput('headless', 'false') === 'true';
+    const successCriteria = getInput('success-criteria', 'ORIGINAL_SUCCESS') as SuccessCriteria || SuccessCriteria.ORIGINAL_SUCCESS;
+    const repairConfidenceThreshold = parseInt(getInput('repair-confidence-threshold', '4'));
 
     core.info(`TestChimp: Scanning directory ${testDirectory} for TestChimp managed tests...`);
 
@@ -78,13 +78,24 @@ async function run(): Promise<void> {
       core.info(`  ${input}: ${value ? 'present' : 'missing'} (length: ${value ? value.length : 0})`);
     });
 
+    // Helper function to get input from either core.getInput or environment variables
+    const getInput = (name: string, defaultValue: string = ''): string => {
+      const coreValue = core.getInput(name);
+      if (coreValue) return coreValue;
+      
+      const envValue = process.env[`INPUT_${name.toUpperCase().replace(/-/g, '_')}`];
+      if (envValue) return envValue;
+      
+      return defaultValue;
+    };
+
     // Set up authentication configuration
     let authConfig = createAuthConfigFromEnv();
     
     // If no auth config from environment, use required project API key from GitHub secrets
     if (!authConfig) {
-      const apiKey = core.getInput('api-key');
-      const projectId = core.getInput('project-id');
+      const apiKey = getInput('api-key');
+      const projectId = getInput('project-id');
       
       // Debug: Log what we received
       core.info(`TestChimp: Debug - api-key present: ${!!apiKey}`);
