@@ -129,13 +129,16 @@ export class LLMFacade {
         throw new Error('Invalid response from LLM backend');
       }
     } catch (error: any) {
-      if (axios.isAxiosError(error)) {
+      if (axios.isAxiosError(error) && error.response?.status === 412) {
+        // 412 Precondition Failed - typically means insufficient credits
+        const errorMessage = `❌ Insufficient credits: Your organization does not have enough credits to run AI repairs. Please sign in at https://prod.testchimp.io/signin to increase your credit quota.`;
+        console.error(errorMessage);
+        throw new Error(errorMessage);
+      } else if (axios.isAxiosError(error)) {
         console.error('LLM call failed:', error.message);
         console.error('Status:', error.response?.status);
         console.error('Status Text:', error.response?.statusText);
         console.error('Response Data:', error.response?.data);
-        console.error('Request URL:', error.config?.url);
-        console.error('Request Headers:', error.config?.headers);
       } else {
         console.error('LLM call failed:', error);
       }
