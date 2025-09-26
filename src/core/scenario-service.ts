@@ -18,12 +18,14 @@ export class ScenarioService extends EventEmitter {
   private maxWorkers: number;
   private fileHandler: FileHandler;
   private authConfig: AuthConfig | null;
+  private backendUrl?: string;
 
-  constructor(maxWorkers: number = 2, fileHandler?: FileHandler, authConfig?: AuthConfig) {
+  constructor(maxWorkers: number = 2, fileHandler?: FileHandler, authConfig?: AuthConfig, backendUrl?: string) {
     super();
     this.maxWorkers = maxWorkers;
     this.fileHandler = fileHandler || new NoOpFileHandler();
     this.authConfig = authConfig || null;
+    this.backendUrl = backendUrl;
   }
 
   private async initializeWorkers(): Promise<void> {
@@ -33,7 +35,7 @@ export class ScenarioService extends EventEmitter {
   }
 
   private async createWorker(): Promise<void> {
-    const worker = new ScenarioWorker(this.fileHandler, this.authConfig || undefined);
+    const worker = new ScenarioWorker(this.fileHandler, this.authConfig || undefined, this.backendUrl);
     await worker.initialize();
     this.workers.push(worker);
     console.log(`Scenario worker initialized with session: ${worker['sessionId']}`);

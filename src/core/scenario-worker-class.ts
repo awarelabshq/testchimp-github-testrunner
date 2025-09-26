@@ -38,8 +38,8 @@ export class ScenarioWorker {
   private fileHandler?: FileHandler;
   private outputChannel?: OutputChannel;
 
-  constructor(fileHandler?: FileHandler, authConfig?: AuthConfig, outputChannel?: OutputChannel) {
-    this.llmFacade = new LLMFacade(authConfig);
+  constructor(fileHandler?: FileHandler, authConfig?: AuthConfig, backendUrl?: string, outputChannel?: OutputChannel) {
+    this.llmFacade = new LLMFacade(authConfig, backendUrl);
     this.fileHandler = fileHandler;
     this.outputChannel = outputChannel;
   }

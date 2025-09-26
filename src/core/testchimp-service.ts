@@ -45,8 +45,8 @@ export class TestChimpService {
     this.backendUrl = backendUrl || 'https://featureservice.testchimp.io'; // Default to production
     this.playwrightService = new PlaywrightMCPService();
     this.llmFacade = new LLMFacade(this.authConfig || undefined, this.backendUrl);
-    this.executionService = new ExecutionService(this.authConfig || undefined);
-    this.scenarioService = new ScenarioService(2, this.fileHandler, this.authConfig || undefined);
+    this.executionService = new ExecutionService(this.authConfig || undefined, this.backendUrl);
+    this.scenarioService = new ScenarioService(2, this.fileHandler, this.authConfig || undefined, this.backendUrl);
   }
 
   /**

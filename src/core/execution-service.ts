@@ -26,9 +26,9 @@ export class ExecutionService {
   private playwrightService: PlaywrightService;
   private llmFacade: LLMFacade;
 
-  constructor(authConfig?: AuthConfig) {
+  constructor(authConfig?: AuthConfig, backendUrl?: string) {
     this.playwrightService = new PlaywrightService();
-    this.llmFacade = new LLMFacade(authConfig);
+    this.llmFacade = new LLMFacade(authConfig, backendUrl);
   }
 
   /**
