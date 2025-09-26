@@ -63,7 +63,8 @@ async function run(): Promise<void> {
     };
     
     // Get inputs using helper function
-    const testDirectory = getInput('test-directory', 'tests');
+    const testDirectoryInput = getInput('test-directory', 'tests');
+    const testDirectories = testDirectoryInput.split(',').map(dir => dir.trim()).filter(dir => dir.length > 0);
     const recursive = getInput('recursive', 'false') === 'true';
     const includePattern = getInput('include-pattern', '**/*.spec.{js,ts}');
     const excludePattern = getInput('exclude-pattern', '**/node_modules/**');
@@ -73,7 +74,7 @@ async function run(): Promise<void> {
     const successCriteria = getInput('success-criteria', 'ORIGINAL_SUCCESS') as SuccessCriteria || SuccessCriteria.ORIGINAL_SUCCESS;
     const repairConfidenceThreshold = parseInt(getInput('repair-confidence-threshold', '4'));
 
-    core.info(`TestChimp: Scanning directory ${testDirectory} for TestChimp managed tests...`);
+    core.info(`TestChimp: Scanning directories ${testDirectories.join(', ')} for TestChimp managed tests...`);
 
     // Debug: Show all available inputs
     const allInputs = [
@@ -124,12 +125,18 @@ async function run(): Promise<void> {
     const testChimpService = new TestChimpService(ciFileHandler, authConfig || undefined, backendUrl);
     await testChimpService.initialize();
 
-    // Find TestChimp managed tests
-    const testFiles = testChimpService.findTestChimpTests(testDirectory, recursive);
+    // Find TestChimp managed tests across all directories
+    const allTestFiles: string[] = [];
+    for (const testDir of testDirectories) {
+      core.info(`TestChimp: Scanning ${testDir}...`);
+      const dirTestFiles = testChimpService.findTestChimpTests(testDir, recursive);
+      allTestFiles.push(...dirTestFiles);
+      core.info(`TestChimp: Found ${dirTestFiles.length} tests in ${testDir}`);
+    }
     
-    core.info(`TestChimp: Found ${testFiles.length} TestChimp managed tests`);
+    core.info(`TestChimp: Found ${allTestFiles.length} TestChimp managed tests total`);
 
-    if (testFiles.length === 0) {
+    if (allTestFiles.length === 0) {
       core.info('TestChimp: No TestChimp managed tests found. Skipping execution.');
       core.setOutput('status', 'skipped');
       core.setOutput('test-count', '0');
@@ -150,7 +157,7 @@ async function run(): Promise<void> {
       core.info(`TestChimp: Repair confidence threshold: ${repairConfidenceThreshold}`);
     }
 
-    for (const testFile of testFiles) {
+    for (const testFile of allTestFiles) {
       core.info(`TestChimp: Executing ${testFile}...`);
       
       try {
@@ -209,7 +216,7 @@ async function run(): Promise<void> {
 
     // Set outputs
     core.setOutput('status', failureCount === 0 ? 'success' : 'failed');
-    core.setOutput('test-count', testFiles.length.toString());
+    core.setOutput('test-count', allTestFiles.length.toString());
     core.setOutput('success-count', successCount.toString());
     core.setOutput('failure-count', failureCount.toString());
     core.setOutput('repaired-count', repairedCount.toString());
@@ -240,7 +247,7 @@ async function run(): Promise<void> {
         const testResults = {
           successCount,
           failureCount,
-          totalTests: testFiles.length,
+          totalTests: allTestFiles.length,
           repairedFiles,
           repairedCount,
           repairedAboveThreshold,

@@ -31,6 +31,11 @@ inputs:
     required: false
     default: '.*'
   
+  test-directory:
+    description: 'Directory containing test files (relative to repository root). For monorepos, use comma-separated directories (e.g., "ui/tests,api/tests")'
+    required: false
+    default: 'tests'
+  
   log-level:
     description: 'Log output level (all, failures, none)'
     required: false
