@@ -174,6 +174,18 @@ async function run(): Promise<void> {
       };
       
       fs.writeFileSync('testchimp-outputs.json', JSON.stringify(outputs));
+      
+      // Display test results even when no tests found
+      core.info('📊 TestChimp Test Results:');
+      core.info(`  Status: skipped`);
+      core.info(`  Total Tests: 0`);
+      core.info(`  Successful: 0`);
+      core.info(`  Failed: 0`);
+      core.info(`  Repaired: 0`);
+      core.info(`  High Confidence Repairs: 0`);
+      core.info(`  Low Confidence Repairs: 0`);
+      core.info(`  Success Criteria: ${successCriteria}`);
+      
       return;
     }
 
@@ -286,6 +298,17 @@ async function run(): Promise<void> {
     if (repairedCount > 0) {
       core.info(`TestChimp: ${repairedCount} tests were repaired: ${repairedAboveThreshold} above threshold (≥${repairConfidenceThreshold}), ${repairedBelowThreshold} below threshold (<${repairConfidenceThreshold})`);
     }
+
+    // Display comprehensive test results
+    core.info('📊 TestChimp Test Results:');
+    core.info(`  Status: ${status}`);
+    core.info(`  Total Tests: ${testCount}`);
+    core.info(`  Successful: ${successCountStr}`);
+    core.info(`  Failed: ${failureCountStr}`);
+    core.info(`  Repaired: ${repairedCountStr}`);
+    core.info(`  High Confidence Repairs: ${repairedAboveThresholdStr}`);
+    core.info(`  Low Confidence Repairs: ${repairedBelowThresholdStr}`);
+    core.info(`  Success Criteria: ${successCriteriaUsed}`);
 
     // Check if any files were repaired and create PR if needed
     const repairedFiles = ciFileHandler.getRepairedFiles();
