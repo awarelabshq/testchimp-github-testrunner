@@ -195,7 +195,10 @@ export class TestChimpService {
           /\/\* Step \d+: \*\//i,
           /testchimp.*step/i,
           /\/\/ AI.*repair/i,
-          /\/\* AI.*repair \*\//i
+          /\/\* AI.*repair \*\//i,
+          /\/\/ TestChimp.*Managed/i,
+          /\/\* TestChimp.*Managed.*\*\//i,
+          /TestChimp.*Managed.*Test/i
         ];
         
         return testChimpMarkers.some(marker => marker.test(content));
