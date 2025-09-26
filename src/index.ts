@@ -50,6 +50,17 @@ async function run(): Promise<void> {
     } catch (error) {
       core.info(`TestChimp: Debug - Error getting test-type input: ${error instanceof Error ? error.message : String(error)}`);
     }
+
+    // Helper function to get input from either core.getInput or environment variables
+    const getInput = (name: string, defaultValue: string = ''): string => {
+      const coreValue = core.getInput(name);
+      if (coreValue) return coreValue;
+      
+      const envValue = process.env[`INPUT_${name.toUpperCase().replace(/-/g, '_')}`];
+      if (envValue) return envValue;
+      
+      return defaultValue;
+    };
     
     // Get inputs using helper function
     const testDirectory = getInput('test-directory', 'tests');
@@ -77,17 +88,6 @@ async function run(): Promise<void> {
       const value = core.getInput(input);
       core.info(`  ${input}: ${value ? 'present' : 'missing'} (length: ${value ? value.length : 0})`);
     });
-
-    // Helper function to get input from either core.getInput or environment variables
-    const getInput = (name: string, defaultValue: string = ''): string => {
-      const coreValue = core.getInput(name);
-      if (coreValue) return coreValue;
-      
-      const envValue = process.env[`INPUT_${name.toUpperCase().replace(/-/g, '_')}`];
-      if (envValue) return envValue;
-      
-      return defaultValue;
-    };
 
     // Set up authentication configuration
     let authConfig = createAuthConfigFromEnv();
