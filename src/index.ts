@@ -26,6 +26,10 @@ async function run(): Promise<void> {
     core.info(`TestChimp: Debug - GITHUB_WORKFLOW: ${process.env.GITHUB_WORKFLOW}`);
     core.info(`TestChimp: Debug - GITHUB_REPOSITORY: ${process.env.GITHUB_REPOSITORY}`);
     
+    // Debug: Check if secrets are available in environment
+    core.info(`TestChimp: Debug - TESTCHIMP_API_KEY in env: ${!!process.env.TESTCHIMP_API_KEY}`);
+    core.info(`TestChimp: Debug - TESTCHIMP_PROJECT_ID in env: ${!!process.env.TESTCHIMP_PROJECT_ID}`);
+    
     // Get inputs
     const testDirectory = core.getInput('test-directory') || 'tests';
     const recursive = core.getInput('recursive') === 'true';
