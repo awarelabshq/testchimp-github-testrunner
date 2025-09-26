@@ -39,7 +39,7 @@ async function run(): Promise<void> {
       const testInput = core.getInput('test-type');
       core.info(`TestChimp: Debug - test-type input test: ${testInput}`);
     } catch (error) {
-      core.info(`TestChimp: Debug - Error getting test-type input: ${error.message}`);
+      core.info(`TestChimp: Debug - Error getting test-type input: ${error instanceof Error ? error.message : String(error)}`);
     }
     
     // Get inputs
