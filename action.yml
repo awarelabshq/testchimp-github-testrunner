@@ -79,15 +79,21 @@ runs:
       shell: bash
       working-directory: ${{ github.action_path }}
     
+    - name: Get installed Playwright version
+      id: playwright-version
+      run: echo "PLAYWRIGHT_VERSION=$(node -e "console.log(require('./package-lock.json').dependencies['playwright'].version)")" >> $GITHUB_ENV
+      shell: bash
+      working-directory: ${{ github.action_path }}
+    
     - name: Cache Playwright browsers
       uses: actions/cache@v4
       id: playwright-cache
       with:
         path: |
           ~/.cache/ms-playwright
-        key: playwright-browsers-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+        key: ${{ runner.os }}-playwright-${{ env.PLAYWRIGHT_VERSION }}
         restore-keys: |
-          playwright-browsers-${{ runner.os }}-
+          ${{ runner.os }}-playwright-
     
     - name: Install Playwright browsers
       if: steps.playwright-cache.outputs.cache-hit != 'true'
