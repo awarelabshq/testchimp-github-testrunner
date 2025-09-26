@@ -21,6 +21,11 @@ function getBackendUrl(): string {
 
 async function run(): Promise<void> {
   try {
+    // Debug: Check if we're in GitHub Actions context
+    core.info(`TestChimp: Debug - GITHUB_ACTIONS: ${process.env.GITHUB_ACTIONS}`);
+    core.info(`TestChimp: Debug - GITHUB_WORKFLOW: ${process.env.GITHUB_WORKFLOW}`);
+    core.info(`TestChimp: Debug - GITHUB_REPOSITORY: ${process.env.GITHUB_REPOSITORY}`);
+    
     // Get inputs
     const testDirectory = core.getInput('test-directory') || 'tests';
     const recursive = core.getInput('recursive') === 'true';
@@ -33,6 +38,20 @@ async function run(): Promise<void> {
     const repairConfidenceThreshold = parseInt(core.getInput('repair-confidence-threshold') || '4');
 
     core.info(`TestChimp: Scanning directory ${testDirectory} for TestChimp managed tests...`);
+
+    // Debug: Show all available inputs
+    const allInputs = [
+      'api-key', 'project-id', 'testchimp-endpoint', 'test-type', 'test-case-regex', 
+      'test-suite-regex', 'test-directory', 'recursive', 'include-pattern', 'exclude-pattern',
+      'mode', 'deflake-runs', 'headless', 'success-criteria', 'repair-confidence-threshold',
+      'create-pr-on-repair', 'pr-title', 'pr-body'
+    ];
+    
+    core.info('TestChimp: Debug - Available inputs:');
+    allInputs.forEach(input => {
+      const value = core.getInput(input);
+      core.info(`  ${input}: ${value ? 'present' : 'missing'} (length: ${value ? value.length : 0})`);
+    });
 
     // Set up authentication configuration
     let authConfig = createAuthConfigFromEnv();
