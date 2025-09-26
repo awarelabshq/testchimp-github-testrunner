@@ -79,6 +79,11 @@ runs:
       shell: bash
       working-directory: ${{ github.action_path }}
     
+    - name: Install Playwright browsers
+      run: npx playwright install --with-deps
+      shell: bash
+      working-directory: ${{ github.action_path }}
+    
     - name: Run TestChimp Action
       run: |
         # Pass all GitHub Actions environment variables to ts-node
