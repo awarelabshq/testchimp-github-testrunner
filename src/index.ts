@@ -1,7 +1,7 @@
 import * as core from '@actions/core';
 import * as exec from '@actions/exec';
 import * as glob from '@actions/glob';
-const { TestChimpService, CIFileHandler, createProjectApiKeyAuth, createAuthConfigFromEnv } = require('../lib/runner-core');
+import { TestChimpService, CIFileHandler, createProjectApiKeyAuth, createAuthConfigFromEnv } from './core';
 import { GitHubCIPipelineFactory, SuccessCriteria } from './github-pipeline';
 
 function getBackendUrl(): string {

@@ -61,8 +61,23 @@ inputs:
     required: false
     default: 'This PR contains test files that were automatically repaired by TestChimp AI.'
 runs:
-  using: 'node20'
-  main: 'dist/index.js'
+  using: 'composite'
+  steps:
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Build action
+      run: npm run build
+    
+    - name: Run TestChimp Action
+      run: node dist/index.js
+      shell: bash
 outputs:
   status:
     description: 'Overall execution status'
