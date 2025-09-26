@@ -76,6 +76,13 @@ async function run(): Promise<void> {
 
     core.info(`TestChimp: Scanning directories ${testDirectories.join(', ')} for TestChimp managed tests...`);
 
+    // Resolve directories relative to the repository workspace so we scan repo files, not action files
+    const workspace = process.env.GITHUB_WORKSPACE || process.cwd();
+    const absTestDirectories = testDirectories.map(dir => {
+      const path = require('path');
+      return path.isAbsolute(dir) ? dir : path.join(workspace, dir);
+    });
+
     // Debug: Show all available inputs
     const allInputs = [
       'api-key', 'project-id', 'testchimp-endpoint', 'test-type', 'test-case-regex', 
@@ -120,14 +127,14 @@ async function run(): Promise<void> {
     core.info(`TestChimp: Using backend URL: ${backendUrl}`);
 
     // Initialize TestChimp service with CI file handler (creates PRs instead of direct writes)
-    // Use the first test directory as the base path for relative path resolution
-    const ciFileHandler = new CIFileHandler('./testchimp-artifacts', testDirectories[0]);
+    // Use the repository workspace as the base path for relative path resolution
+    const ciFileHandler = new CIFileHandler('./testchimp-artifacts', workspace);
     const testChimpService = new TestChimpService(ciFileHandler, authConfig || undefined, backendUrl);
     await testChimpService.initialize();
 
     // Find TestChimp managed tests across all directories
     const allTestFiles: string[] = [];
-    for (const testDir of testDirectories) {
+    for (const testDir of absTestDirectories) {
       core.info(`TestChimp: Scanning ${testDir}...`);
       const dirTestFiles = testChimpService.findTestChimpTests(testDir, recursive);
       allTestFiles.push(...dirTestFiles);
@@ -163,9 +170,8 @@ async function run(): Promise<void> {
       try {
         // Convert absolute path to relative path for the file handler
         const path = require('path');
-        // Find which directory this test file belongs to
-        const testDir = testDirectories.find(dir => testFile.startsWith(dir)) || testDirectories[0];
-        const relativeTestFile = path.relative(testDir, testFile);
+        // Make script path relative to the repository workspace
+        const relativeTestFile = path.relative(workspace, testFile);
         
         const request = {
           scriptFilePath: relativeTestFile,
