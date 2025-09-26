@@ -160,15 +160,20 @@ async function run(): Promise<void> {
       core.setOutput('repaired-below-threshold', '0');
       core.setOutput('success-criteria-used', successCriteria);
       
-      // Write outputs to environment variables for composite action
-      process.env.TESTCHIMP_STATUS = 'skipped';
-      process.env.TESTCHIMP_TEST_COUNT = '0';
-      process.env.TESTCHIMP_SUCCESS_COUNT = '0';
-      process.env.TESTCHIMP_FAILURE_COUNT = '0';
-      process.env.TESTCHIMP_REPAIRED_COUNT = '0';
-      process.env.TESTCHIMP_REPAIRED_ABOVE_THRESHOLD = '0';
-      process.env.TESTCHIMP_REPAIRED_BELOW_THRESHOLD = '0';
-      process.env.TESTCHIMP_SUCCESS_CRITERIA_USED = successCriteria;
+      // Write outputs to file for composite action
+      const fs = require('fs');
+      const outputs = {
+        status: 'skipped',
+        testCount: '0',
+        successCount: '0',
+        failureCount: '0',
+        repairedCount: '0',
+        repairedAboveThreshold: '0',
+        repairedBelowThreshold: '0',
+        successCriteriaUsed: successCriteria
+      };
+      
+      fs.writeFileSync('testchimp-outputs.json', JSON.stringify(outputs));
       return;
     }
 
@@ -261,15 +266,20 @@ async function run(): Promise<void> {
     core.setOutput('repaired-below-threshold', repairedBelowThresholdStr);
     core.setOutput('success-criteria-used', successCriteriaUsed);
     
-    // Write outputs to environment variables for composite action
-    process.env.TESTCHIMP_STATUS = status;
-    process.env.TESTCHIMP_TEST_COUNT = testCount;
-    process.env.TESTCHIMP_SUCCESS_COUNT = successCountStr;
-    process.env.TESTCHIMP_FAILURE_COUNT = failureCountStr;
-    process.env.TESTCHIMP_REPAIRED_COUNT = repairedCountStr;
-    process.env.TESTCHIMP_REPAIRED_ABOVE_THRESHOLD = repairedAboveThresholdStr;
-    process.env.TESTCHIMP_REPAIRED_BELOW_THRESHOLD = repairedBelowThresholdStr;
-    process.env.TESTCHIMP_SUCCESS_CRITERIA_USED = successCriteriaUsed;
+    // Write outputs to file for composite action
+    const fs = require('fs');
+    const outputs = {
+      status,
+      testCount,
+      successCount: successCountStr,
+      failureCount: failureCountStr,
+      repairedCount: repairedCountStr,
+      repairedAboveThreshold: repairedAboveThresholdStr,
+      repairedBelowThreshold: repairedBelowThresholdStr,
+      successCriteriaUsed: successCriteriaUsed
+    };
+    
+    fs.writeFileSync('testchimp-outputs.json', JSON.stringify(outputs));
 
     // Summary
     core.info(`TestChimp: Execution complete - ${successCount}/${allTestFiles.length} tests passed`);

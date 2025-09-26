@@ -145,34 +145,53 @@ runs:
         export TESTCHIMP_ENV="${{ env.TESTCHIMP_ENV }}"
         export NODE_ENV="${{ env.NODE_ENV }}"
         
-        # Run the action (outputs are written to environment variables by TypeScript)
+        # Run the action and set outputs
         npx ts-node src/index.ts
         
-        # Set outputs from environment variables
-        echo "status=${TESTCHIMP_STATUS}" >> $GITHUB_OUTPUT
-        echo "test-count=${TESTCHIMP_TEST_COUNT}" >> $GITHUB_OUTPUT
-        echo "success-count=${TESTCHIMP_SUCCESS_COUNT}" >> $GITHUB_OUTPUT
-        echo "failure-count=${TESTCHIMP_FAILURE_COUNT}" >> $GITHUB_OUTPUT
-        echo "repaired-count=${TESTCHIMP_REPAIRED_COUNT}" >> $GITHUB_OUTPUT
-        echo "repaired-above-threshold=${TESTCHIMP_REPAIRED_ABOVE_THRESHOLD}" >> $GITHUB_OUTPUT
-        echo "repaired-below-threshold=${TESTCHIMP_REPAIRED_BELOW_THRESHOLD}" >> $GITHUB_OUTPUT
-        echo "success-criteria-used=${TESTCHIMP_SUCCESS_CRITERIA_USED}" >> $GITHUB_OUTPUT
+        # Set outputs from JSON file
+        if [ -f "testchimp-outputs.json" ]; then
+          STATUS=$(jq -r '.status' testchimp-outputs.json)
+          TEST_COUNT=$(jq -r '.testCount' testchimp-outputs.json)
+          SUCCESS_COUNT=$(jq -r '.successCount' testchimp-outputs.json)
+          FAILURE_COUNT=$(jq -r '.failureCount' testchimp-outputs.json)
+          REPAIRED_COUNT=$(jq -r '.repairedCount' testchimp-outputs.json)
+          REPAIRED_ABOVE_THRESHOLD=$(jq -r '.repairedAboveThreshold' testchimp-outputs.json)
+          REPAIRED_BELOW_THRESHOLD=$(jq -r '.repairedBelowThreshold' testchimp-outputs.json)
+          SUCCESS_CRITERIA_USED=$(jq -r '.successCriteriaUsed' testchimp-outputs.json)
+          
+          echo "status=${STATUS}" >> $GITHUB_OUTPUT
+          echo "test-count=${TEST_COUNT}" >> $GITHUB_OUTPUT
+          echo "success-count=${SUCCESS_COUNT}" >> $GITHUB_OUTPUT
+          echo "failure-count=${FAILURE_COUNT}" >> $GITHUB_OUTPUT
+          echo "repaired-count=${REPAIRED_COUNT}" >> $GITHUB_OUTPUT
+          echo "repaired-above-threshold=${REPAIRED_ABOVE_THRESHOLD}" >> $GITHUB_OUTPUT
+          echo "repaired-below-threshold=${REPAIRED_BELOW_THRESHOLD}" >> $GITHUB_OUTPUT
+          echo "success-criteria-used=${SUCCESS_CRITERIA_USED}" >> $GITHUB_OUTPUT
+        fi
       shell: bash
       working-directory: ${{ github.action_path }}
 outputs:
   status:
     description: 'Overall execution status'
+    value: ${{ steps.testchimp.outputs.status }}
   test-count:
     description: 'Number of tests executed'
+    value: ${{ steps.testchimp.outputs.test-count }}
   success-count:
     description: 'Number of successful tests'
+    value: ${{ steps.testchimp.outputs.success-count }}
   failure-count:
     description: 'Number of failed tests'
+    value: ${{ steps.testchimp.outputs.failure-count }}
   repaired-count:
     description: 'Number of tests that were repaired'
+    value: ${{ steps.testchimp.outputs.repaired-count }}
   repaired-above-threshold:
     description: 'Number of tests repaired with confidence above threshold'
+    value: ${{ steps.testchimp.outputs.repaired-above-threshold }}
   repaired-below-threshold:
     description: 'Number of tests repaired with confidence below threshold'
+    value: ${{ steps.testchimp.outputs.repaired-below-threshold }}
   success-criteria-used:
     description: 'Success criteria that was applied (ORIGINAL_SUCCESS or REPAIR_SUCCESS_WITH_CONFIDENCE)'
+    value: ${{ steps.testchimp.outputs.success-criteria-used }}
