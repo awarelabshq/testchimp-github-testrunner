@@ -1,11 +1,11 @@
 {
   "name": "testchimp-runner-action",
-  "version": "1.0.4",
+  "version": "1.0.6",
   "description": "GitHub Action for TestChimp AI test repair",
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc && npm run package",
-    "package": "ncc build src/index.ts -o dist --source-map --license licenses.txt",
+    "package": "ncc build src/index.ts -o dist --source-map --license licenses.txt --minify",
     "watch": "tsc --watch",
     "clean": "rm -rf dist"
   },
