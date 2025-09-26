@@ -155,6 +155,25 @@ async function run(): Promise<void> {
       core.setOutput('test-count', '0');
       core.setOutput('success-count', '0');
       core.setOutput('failure-count', '0');
+      core.setOutput('repaired-count', '0');
+      core.setOutput('repaired-above-threshold', '0');
+      core.setOutput('repaired-below-threshold', '0');
+      core.setOutput('success-criteria-used', successCriteria);
+      
+      // Write outputs to file for composite action
+      const fs = require('fs');
+      const outputs = [
+        `status=skipped`,
+        `test-count=0`,
+        `success-count=0`,
+        `failure-count=0`,
+        `repaired-count=0`,
+        `repaired-above-threshold=0`,
+        `repaired-below-threshold=0`,
+        `success-criteria-used=${successCriteria}`
+      ].join('\n');
+      
+      fs.writeFileSync('testchimp-outputs.txt', outputs);
       return;
     }
 
@@ -229,14 +248,38 @@ async function run(): Promise<void> {
     }
 
     // Set outputs
-    core.setOutput('status', failureCount === 0 ? 'success' : 'failed');
-    core.setOutput('test-count', allTestFiles.length.toString());
-    core.setOutput('success-count', successCount.toString());
-    core.setOutput('failure-count', failureCount.toString());
-    core.setOutput('repaired-count', repairedCount.toString());
-    core.setOutput('repaired-above-threshold', repairedAboveThreshold.toString());
-    core.setOutput('repaired-below-threshold', repairedBelowThreshold.toString());
-    core.setOutput('success-criteria-used', successCriteria);
+    const status = failureCount === 0 ? 'success' : 'failed';
+    const testCount = allTestFiles.length.toString();
+    const successCountStr = successCount.toString();
+    const failureCountStr = failureCount.toString();
+    const repairedCountStr = repairedCount.toString();
+    const repairedAboveThresholdStr = repairedAboveThreshold.toString();
+    const repairedBelowThresholdStr = repairedBelowThreshold.toString();
+    const successCriteriaUsed = successCriteria;
+    
+    core.setOutput('status', status);
+    core.setOutput('test-count', testCount);
+    core.setOutput('success-count', successCountStr);
+    core.setOutput('failure-count', failureCountStr);
+    core.setOutput('repaired-count', repairedCountStr);
+    core.setOutput('repaired-above-threshold', repairedAboveThresholdStr);
+    core.setOutput('repaired-below-threshold', repairedBelowThresholdStr);
+    core.setOutput('success-criteria-used', successCriteriaUsed);
+    
+    // Also write outputs to file for composite action
+    const fs = require('fs');
+    const outputs = [
+      `status=${status}`,
+      `test-count=${testCount}`,
+      `success-count=${successCountStr}`,
+      `failure-count=${failureCountStr}`,
+      `repaired-count=${repairedCountStr}`,
+      `repaired-above-threshold=${repairedAboveThresholdStr}`,
+      `repaired-below-threshold=${repairedBelowThresholdStr}`,
+      `success-criteria-used=${successCriteriaUsed}`
+    ].join('\n');
+    
+    fs.writeFileSync('testchimp-outputs.txt', outputs);
 
     // Summary
     core.info(`TestChimp: Execution complete - ${successCount}/${allTestFiles.length} tests passed`);

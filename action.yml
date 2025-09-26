@@ -107,6 +107,7 @@ runs:
       working-directory: ${{ github.action_path }}
     
     - name: Run TestChimp Action
+      id: testchimp
       run: |
         # Pass all GitHub Actions environment variables to ts-node
         export GITHUB_ACTIONS=true
@@ -144,8 +145,13 @@ runs:
         export TESTCHIMP_ENV="${{ env.TESTCHIMP_ENV }}"
         export NODE_ENV="${{ env.NODE_ENV }}"
         
-        # Run the action
+        # Run the action and capture outputs
         npx ts-node src/index.ts
+        
+        # Read outputs from the file created by the TypeScript code
+        if [ -f "testchimp-outputs.txt" ]; then
+          cat testchimp-outputs.txt >> $GITHUB_OUTPUT
+        fi
       shell: bash
       working-directory: ${{ github.action_path }}
 outputs:
