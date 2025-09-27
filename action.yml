@@ -130,7 +130,7 @@ runs:
         cd ${{ github.workspace }}
         
         # Run the action and set outputs
-        node ${{ github.action_path }}/dist/index.js
+        npx ts-node ${{ github.action_path }}/src/index.ts
         
         # Set outputs from JSON file
         if [ -f "testchimp-outputs.json" ]; then
