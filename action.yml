@@ -33,15 +33,35 @@ inputs:
     required: false
     default: '4'
   
-  create-pr-on-repair:
-    description: 'Create a pull request with repaired test files (true/false)'
-    required: false
-    default: 'true'
-  
   attempt-ai-repair:
     description: 'Attempt AI repair on failed tests (true/false)'
     required: false
     default: 'true'
+  
+  recursive:
+    description: 'Search for test files recursively in subdirectories (true/false)'
+    required: false
+    default: 'false'
+  
+  include-pattern:
+    description: 'Glob pattern for test files to include'
+    required: false
+    default: '**/*.spec.{js,ts}'
+  
+  exclude-pattern:
+    description: 'Glob pattern for files/directories to exclude'
+    required: false
+    default: '**/node_modules/**'
+  
+  mode:
+    description: 'Test execution mode (RUN_EXACTLY, RUN_WITH_AI_REPAIR)'
+    required: false
+    default: 'RUN_WITH_AI_REPAIR'
+  
+  deflake-runs:
+    description: 'Number of times to run flaky tests to deflake them'
+    required: false
+    default: '2'
   
   
 runs:
@@ -106,7 +126,6 @@ runs:
         export INPUT_DEFLAKE_RUNS="${{ inputs.deflake-runs }}"
         export INPUT_SUCCESS_CRITERIA="${{ inputs.success-criteria }}"
         export INPUT_REPAIR_CONFIDENCE_THRESHOLD="${{ inputs.repair-confidence-threshold }}"
-        export INPUT_CREATE_PR_ON_REPAIR="${{ inputs.create-pr-on-repair }}"
         export INPUT_ATTEMPT_AI_REPAIR="${{ inputs.attempt-ai-repair }}"
         
         # Pass environment variables
