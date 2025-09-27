@@ -164,7 +164,7 @@ async function run(): Promise<void> {
         // Convert absolute path to relative path for the file handler
         const path = require('path');
         // Make script path relative to the repository workspace
-        const relativeTestFile = path.relative(workspace, testFile);
+        const relativeTestFile = String(path.relative(workspace, testFile));
         
         const request = {
           scriptFilePath: relativeTestFile,

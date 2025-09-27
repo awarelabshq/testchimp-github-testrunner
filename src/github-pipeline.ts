@@ -228,7 +228,8 @@ export class GitHubCIPipeline implements CIPipeline {
       for (const [filePath, content] of testResults.repairedFiles) {
         // Resolve file path relative to the repository workspace
         const workspace = process.env.GITHUB_WORKSPACE || process.cwd();
-        const fullPath = path.isAbsolute(filePath) ? filePath : path.join(workspace, filePath);
+        const stringFilePath = String(filePath);
+        const fullPath = path.isAbsolute(stringFilePath) ? stringFilePath : path.join(workspace, stringFilePath);
         const dir = path.dirname(fullPath);
         
         // Ensure directory exists
@@ -238,7 +239,7 @@ export class GitHubCIPipeline implements CIPipeline {
         
         // Write file
         fs.writeFileSync(fullPath, content, 'utf8');
-        core.info(`Written repaired file: ${filePath}`);
+        core.info(`TestChimp: 📝 Wrote repaired file: ${fullPath}`);
       }
 
       // Add and commit files
