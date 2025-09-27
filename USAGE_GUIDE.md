@@ -61,7 +61,6 @@ jobs:
         with:
           api-key: ${{ secrets.TESTCHIMP_API_KEY }}
           project-id: ${{ secrets.TESTCHIMP_PROJECT_ID }}
-          testchimp-endpoint: "https://featureservice-staging.testchimp.io"
           test-directory: "ui/tests,services/tests"
           success-criteria: "REPAIR_SUCCESS_WITH_CONFIDENCE"
           repair-confidence-threshold: "4"
@@ -149,71 +148,6 @@ jobs:
           create-pr-on-repair: "true"
 ```
 
-### Advanced Workflow with Custom Configuration
-
-```yaml
-name: TestChimp AI Test Repair
-
-on:
-  workflow_dispatch:
-  pull_request:
-    branches: [ main, develop ]
-    paths: [ 'e2e-tests/**', 'integration-tests/**' ]
-
-jobs:
-  testchimp-tests:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Run TestChimp Tests with AI Repair
-        id: testchimp
-        uses: awarelabshq/testchimp-github-testrunner@v1.0.8
-        env:
-          TESTCHIMP_ENV: production
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          api-key: ${{ secrets.TESTCHIMP_API_KEY }}
-          project-id: ${{ secrets.TESTCHIMP_PROJECT_ID }}
-          testchimp-endpoint: "https://featureservice.testchimp.io"
-          test-directory: "e2e-tests,integration-tests"
-          test-case-regex: ".*\\.spec\\.(js|ts)$"
-          test-suite-regex: ".*"
-          success-criteria: "ORIGINAL_SUCCESS"
-          repair-confidence-threshold: "5"
-          create-pr-on-repair: "true"
-          pr-title: "🤖 TestChimp: Fixed {count} test file{count,plural,one{} other{s}}"
-          pr-body: |
-            ## 🤖 TestChimp AI Repair Results
-            
-            This PR contains test files that were automatically repaired by TestChimp AI.
-            
-            ### 📊 Test Results Summary
-            - **Total Tests**: ${{ steps.testchimp.outputs.test-count }}
-            - **Successful**: ${{ steps.testchimp.outputs.success-count }}
-            - **Failed**: ${{ steps.testchimp.outputs.failure-count }}
-            - **Repaired**: ${{ steps.testchimp.outputs.repaired-count }}
-            
-            ### 🔧 What TestChimp Fixed
-            TestChimp analyzed failing tests and automatically generated repairs with confidence scoring.
-            
-            Please review the changes and merge if the repairs look good!
-
-      - name: Display Results
-        run: |
-          echo "Tests executed: ${{ steps.testchimp.outputs.test-count }}"
-          echo "Tests passed: ${{ steps.testchimp.outputs.success-count }}"
-          echo "Tests repaired: ${{ steps.testchimp.outputs.repaired-count }}"
-          if [ "${{ steps.testchimp.outputs.pull-request-number }}" != "" ]; then
-            echo "PR created: ${{ steps.testchimp.outputs.pull-request-url }}"
-          fi
-```
-
 ## Configuration Options
 
 ### Required Parameters
@@ -232,28 +166,49 @@ jobs:
 | `test-suite-regex` | `.*` | Regex pattern for test suites |
 | `success-criteria` | `ORIGINAL_SUCCESS` | Success criteria (see below) |
 | `repair-confidence-threshold` | `4` | Minimum confidence score (1-5) |
-| `create-pr-on-repair` | `false` | Create PR when files are repaired |
-| `pr-title` | `TestChimp: AI-repaired test files` | PR title template |
-| `pr-body` | Default template | PR description template |
-| `headless` | `true` | Run browser in headless mode |
+| `create-pr-on-repair` | `true` | Create PR when files are repaired |
+| `attempt-ai-repair` | `true` | Attempt AI repair on failed tests |
 | `deflake-runs` | `2` | Number of deflake runs to attempt |
 
 ### Success Criteria
 
 #### `ORIGINAL_SUCCESS` (Default)
 Only tests that pass on their original run are considered successful. AI repairs don't count as success.
+However, AI repairs are still attempted on tests and PRs are created (unless `attempt-ai-repair` is set to `false`)
 
 ```yaml
 success-criteria: 'ORIGINAL_SUCCESS'
 ```
 
 #### `REPAIR_SUCCESS_WITH_CONFIDENCE`
-Tests that either pass originally OR are successfully repaired with sufficient confidence.
+Tests that either pass originally OR are successfully repaired with sufficient confidence are considered successful test runs
 
 ```yaml
 success-criteria: 'REPAIR_SUCCESS_WITH_CONFIDENCE'
 repair-confidence-threshold: '4'  # 1-5 scale
 ```
+
+### AI Repair Control
+
+#### `attempt-ai-repair: true` (Default)
+AI repair is attempted on all failed tests, regardless of success criteria.
+
+```yaml
+attempt-ai-repair: true
+```
+
+#### `attempt-ai-repair: false`
+No AI repair is attempted. Tests run exactly as written and only original results count.
+
+```yaml
+attempt-ai-repair: false
+```
+
+**Use cases for `attempt-ai-repair: false`:**
+- You only want to run tests without any modifications
+- You want to avoid AI repair costs
+- You're debugging test failures and want to see original errors
+- You want faster execution without repair processing
 
 ## Troubleshooting
 
@@ -276,9 +231,8 @@ repair-confidence-threshold: '4'  # 1-5 scale
 **Error**: No TestChimp-managed tests are discovered.
 
 **Solution**: 
-- Check that test files contain TestChimp markers
-- Verify `test-directory` paths are correct
-- Ensure test files match the regex patterns
+- Check that test files contain TestChimp markers (The test file should contain "TestChimp Managed Test" phrase).
+- Verify `test-directory` paths are correct (relative paths from the root dir)
 
 #### 4. "Authentication errors"
 **Error**: `Authentication not configured` or similar.
@@ -307,25 +261,6 @@ The action provides detailed logging:
 
 ## Advanced Usage
 
-### Custom PR Templates
-
-You can customize the PR title and description using templates:
-
-```yaml
-pr-title: "🤖 TestChimp: Fixed {count} test file{count,plural,one{} other{s}} ({summary})"
-pr-body: |
-  ## 🤖 TestChimp AI Repair Results
-  
-  This PR contains test files that were automatically repaired by TestChimp AI.
-  
-  ### 📊 Test Results Summary
-  - **Total Tests**: {count}
-  - **Successful**: {summary}
-  - **Repaired Files**: {files}
-  
-  Please review the changes and merge if the repairs look good!
-```
-
 ### Using Outputs
 
 The action provides several outputs you can use in subsequent steps:
@@ -353,56 +288,26 @@ The action provides several outputs you can use in subsequent steps:
     echo "Repaired tests: ${{ steps.testchimp.outputs.repaired-count }}"
 ```
 
-### Conditional PR Creation
-
-You can conditionally create PRs based on certain criteria:
-
-```yaml
-- name: Run TestChimp Tests with AI Repair
-  id: testchimp
-  uses: awarelabshq/testchimp-github-testrunner@v1.0.8
-  with:
-    api-key: ${{ secrets.TESTCHIMP_API_KEY }}
-    project-id: ${{ secrets.TESTCHIMP_PROJECT_ID }}
-    create-pr-on-repair: "true"
-    repair-confidence-threshold: "4"  # Only create PR if confidence >= 4
-
-- name: Create PR for High Confidence Repairs
-  if: steps.testchimp.outputs.repaired-above-threshold > 0
-  run: |
-    echo "High confidence repairs found: ${{ steps.testchimp.outputs.repaired-above-threshold }}"
-    echo "PR created: ${{ steps.testchimp.outputs.pull-request-url }}"
-```
-
 ## Best Practices
 
-### 1. Test File Organization
-- Keep TestChimp-managed tests in dedicated directories
-- Use consistent naming conventions
-- Include clear step descriptions in TestChimp markers
-
-### 2. Confidence Thresholds
+### 1. Confidence Thresholds
 - Start with threshold 4 for high confidence
 - Lower to 3 for more aggressive repairs
 - Use 5 for very conservative approach
 
-### 3. Success Criteria
-- Use `ORIGINAL_SUCCESS` for production environments
-- Use `REPAIR_SUCCESS_WITH_CONFIDENCE` for development/testing
 
-### 4. Review Process
+### 2. Review Process
 - Always review AI-generated repairs before merging
 - Test repaired files manually when possible
 - Use PR reviews to validate changes
 
 ### 5. Monitoring
 - Monitor repair success rates
-- Track confidence scores over time
 - Adjust thresholds based on results
 
 ## Support
 
-- 📖 [TestChimp Documentation](https://docs.testchimp.io)
+- 📖 [TestChimp Documentation](https://testchimp.io/blog)
 - 🐛 [Report Issues](https://github.com/awarelabshq/testchimp-github-testrunner/issues)
 - 💬 [Ask Questions](https://github.com/awarelabshq/testchimp-github-testrunner/discussions)
 

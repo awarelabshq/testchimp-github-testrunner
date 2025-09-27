@@ -40,16 +40,17 @@ async function run(): Promise<void> {
     const includePattern = getInput('include-pattern', '**/*.spec.{js,ts}');
     const excludePattern = getInput('exclude-pattern', '**/node_modules/**');
     const mode = getInput('mode', 'RUN_WITH_AI_REPAIR');
-    const deflakeRuns = parseInt(getInput('deflake-runs', '3'));
+    const deflakeRuns = parseInt(getInput('deflake-runs', '2'));
     // In GitHub Actions, always run headless (no display server available)
     const isGitHubActions = process.env.GITHUB_ACTIONS === 'true';
-    const headless = isGitHubActions ? true : (getInput('headless', 'true') === 'true');
+    const headless = true; // Always run headless in CI/CD
     
     if (isGitHubActions) {
       core.info('TestChimp: Running in GitHub Actions - forcing headless mode (no display server available)');
     }
     const successCriteria = getInput('success-criteria', 'ORIGINAL_SUCCESS') as SuccessCriteria || SuccessCriteria.ORIGINAL_SUCCESS;
     const repairConfidenceThreshold = parseInt(getInput('repair-confidence-threshold', '4'));
+    const attemptAIRepair = getInput('attempt-ai-repair', 'true').toLowerCase() === 'true';
 
     core.info(`TestChimp: Scanning directories ${testDirectories.join(', ')} for TestChimp managed tests...`);
 
@@ -150,6 +151,7 @@ async function run(): Promise<void> {
     let repairedBelowThreshold = 0;
 
     core.info(`TestChimp: Using success criteria: ${successCriteria}`);
+    core.info(`TestChimp: Attempt AI repair: ${attemptAIRepair}`);
     if (successCriteria === SuccessCriteria.REPAIR_SUCCESS_WITH_CONFIDENCE) {
       core.info(`TestChimp: Repair confidence threshold: ${repairConfidenceThreshold}`);
     }
@@ -165,7 +167,7 @@ async function run(): Promise<void> {
         
         const request = {
           scriptFilePath: relativeTestFile,
-          mode: mode,
+          mode: attemptAIRepair ? mode : 'RUN_EXACTLY',
           headless: headless,
           deflake_run_count: deflakeRuns
         };

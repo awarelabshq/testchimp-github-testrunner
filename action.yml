@@ -12,23 +12,9 @@ inputs:
     description: 'TestChimp project ID (required for CI/CD authentication)'
     required: true
   
-  testchimp-endpoint:
-    description: 'TestChimp API endpoint (optional)'
-    required: false
-    default: 'https://featureservice.testchimp.io'
-  
-  test-case-regex:
-    description: 'Regex pattern to filter test cases (optional)'
-    required: false
-    default: '.*'
-  
-  test-suite-regex:
-    description: 'Regex pattern to filter test suites (optional)'
-    required: false
-    default: '.*'
   
   test-directory:
-    description: 'Directory containing test files (relative to repository root). For monorepos, use comma-separated directories (e.g., "ui/tests,api/tests")'
+    description: 'Directory containing test files (relative to repository root). Use comma-separated directories to list multiple (e.g., "ui/tests,api/tests")'
     required: false
     default: 'tests'
   
@@ -50,22 +36,14 @@ inputs:
   create-pr-on-repair:
     description: 'Create a pull request with repaired test files (true/false)'
     required: false
-    default: 'false'
+    default: 'true'
   
-  pr-title:
-    description: 'Title for the pull request (optional)'
-    required: false
-    default: 'TestChimp: AI-repaired test files'
-  
-  pr-body:
-    description: 'Body for the pull request (optional)'
-    required: false
-    default: 'This PR contains test files that were automatically repaired by TestChimp AI.'
-  
-  headless:
-    description: 'Run browser in headless mode (automatically forced to true in GitHub Actions)'
+  attempt-ai-repair:
+    description: 'Attempt AI repair on failed tests (true/false)'
     required: false
     default: 'true'
+  
+  
 runs:
   using: 'composite'
   steps:
@@ -120,21 +98,16 @@ runs:
         # Pass all input variables
         export INPUT_API_KEY="${{ inputs.api-key }}"
         export INPUT_PROJECT_ID="${{ inputs.project-id }}"
-        export INPUT_TESTCHIMP_ENDPOINT="${{ inputs.testchimp-endpoint }}"
-        export INPUT_TEST_CASE_REGEX="${{ inputs.test-case-regex }}"
-        export INPUT_TEST_SUITE_REGEX="${{ inputs.test-suite-regex }}"
         export INPUT_TEST_DIRECTORY="${{ inputs.test-directory }}"
         export INPUT_RECURSIVE="${{ inputs.recursive }}"
         export INPUT_INCLUDE_PATTERN="${{ inputs.include-pattern }}"
         export INPUT_EXCLUDE_PATTERN="${{ inputs.exclude-pattern }}"
         export INPUT_MODE="${{ inputs.mode }}"
         export INPUT_DEFLAKE_RUNS="${{ inputs.deflake-runs }}"
-        export INPUT_HEADLESS="${{ inputs.headless }}"
         export INPUT_SUCCESS_CRITERIA="${{ inputs.success-criteria }}"
         export INPUT_REPAIR_CONFIDENCE_THRESHOLD="${{ inputs.repair-confidence-threshold }}"
         export INPUT_CREATE_PR_ON_REPAIR="${{ inputs.create-pr-on-repair }}"
-        export INPUT_PR_TITLE="${{ inputs.pr-title }}"
-        export INPUT_PR_BODY="${{ inputs.pr-body }}"
+        export INPUT_ATTEMPT_AI_REPAIR="${{ inputs.attempt-ai-repair }}"
         
         # Pass environment variables
         export TESTCHIMP_ENV="${{ env.TESTCHIMP_ENV }}"
