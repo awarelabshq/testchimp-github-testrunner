@@ -64,6 +64,7 @@ jobs:
           test-directory: "ui/tests,services/tests"
           success-criteria: "REPAIR_SUCCESS_WITH_CONFIDENCE"
           repair-confidence-threshold: "4"
+          max-workers: "10"
           create-pr-on-repair: "true"
 ```
 
@@ -145,6 +146,7 @@ jobs:
           test-directory: "ui/tests,services/tests"
           success-criteria: "REPAIR_SUCCESS_WITH_CONFIDENCE"
           repair-confidence-threshold: "4"
+          max-workers: "10"
           create-pr-on-repair: "true"
 ```
 
@@ -169,6 +171,7 @@ jobs:
 | `create-pr-on-repair` | `true` | Create PR when files are repaired |
 | `attempt-ai-repair` | `true` | Attempt AI repair on failed tests |
 | `deflake-runs` | `2` | Number of deflake runs to attempt |
+| `max-workers` | `10` | Maximum number of concurrent workers for test execution |
 
 ### Success Criteria
 
@@ -290,18 +293,24 @@ The action provides several outputs you can use in subsequent steps:
 
 ## Best Practices
 
-### 1. Confidence Thresholds
+### 1. Worker Pool Configuration
+- Use 10 workers (default) for optimal performance on most CI environments
+- Increase to 15-20 for repositories with many tests and powerful runners
+- Decrease to 5-8 for repositories with resource constraints or limited API quotas
+- Monitor execution times and adjust based on your specific needs
+
+### 2. Confidence Thresholds
 - Start with threshold 4 for high confidence
 - Lower to 3 for more aggressive repairs
 - Use 5 for very conservative approach
 
 
-### 2. Review Process
+### 3. Review Process
 - Always review AI-generated repairs before merging
 - Test repaired files manually when possible
 - Use PR reviews to validate changes
 
-### 5. Monitoring
+### 4. Monitoring
 - Monitor repair success rates
 - Adjust thresholds based on results
 
