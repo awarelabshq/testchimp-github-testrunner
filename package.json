@@ -20,7 +20,7 @@
     "dotenv": "^17.2.2",
     "esbuild": "^0.25.10",
     "playwright": "^1.55.1",
-    "testchimp-runner-core": "^0.0.2"
+    "testchimp-runner-core": "^0.0.3"
   },
   "devDependencies": {
     "@types/node": "^20.10.0",
