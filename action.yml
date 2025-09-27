@@ -17,10 +17,6 @@ inputs:
     required: false
     default: 'https://featureservice.testchimp.io'
   
-  test-type:
-    description: 'Type of test to run (FS_TEST for API tests, UI_TEST for UI tests)'
-    required: true
-  
   test-case-regex:
     description: 'Regex pattern to filter test cases (optional)'
     required: false
@@ -125,7 +121,6 @@ runs:
         export INPUT_API_KEY="${{ inputs.api-key }}"
         export INPUT_PROJECT_ID="${{ inputs.project-id }}"
         export INPUT_TESTCHIMP_ENDPOINT="${{ inputs.testchimp-endpoint }}"
-        export INPUT_TEST_TYPE="${{ inputs.test-type }}"
         export INPUT_TEST_CASE_REGEX="${{ inputs.test-case-regex }}"
         export INPUT_TEST_SUITE_REGEX="${{ inputs.test-suite-regex }}"
         export INPUT_TEST_DIRECTORY="${{ inputs.test-directory }}"
