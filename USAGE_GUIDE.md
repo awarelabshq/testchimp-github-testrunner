@@ -54,7 +54,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run TestChimp Tests with AI Repair
-        uses: awarelabshq/testchimp-github-testrunner@v1.0.8
+        uses: awarelabshq/testchimp-github-testrunner@v1.0.9
         env:
           TESTCHIMP_ENV: staging
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -136,7 +136,7 @@ jobs:
 
       - name: Run TestChimp Tests with AI Repair
         id: testchimp
-        uses: awarelabshq/testchimp-github-testrunner@v1.0.8
+        uses: awarelabshq/testchimp-github-testrunner@v1.0.9
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -268,7 +268,7 @@ The action provides several outputs you can use in subsequent steps:
 ```yaml
 - name: TestChimp AI Repair
   id: testchimp
-  uses: awarelabshq/testchimp-github-testrunner@v1.0.8
+  uses: awarelabshq/testchimp-github-testrunner@v1.0.9
   with:
     api-key: ${{ secrets.TESTCHIMP_API_KEY }}
     project-id: ${{ secrets.TESTCHIMP_PROJECT_ID }}
