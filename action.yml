@@ -73,6 +73,11 @@ runs:
       shell: bash
       working-directory: ${{ github.action_path }}
     
+    - name: Build action
+      run: npm run build
+      shell: bash
+      working-directory: ${{ github.action_path }}
+    
     - name: Get installed Playwright version
       id: playwright-version
       run: echo "PLAYWRIGHT_VERSION=$(node -e "console.log(require('./package-lock.json').dependencies['playwright'].version)")" >> $GITHUB_ENV
@@ -128,7 +133,7 @@ runs:
         
         # Run the action and set outputs (from action directory where dependencies are installed)
         cd ${{ github.action_path }}
-        npx ts-node src/index.ts
+        node dist/index.js
         
         # Change to repository directory for git operations
         cd ${{ github.workspace }}
