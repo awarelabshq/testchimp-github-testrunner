@@ -1,7 +1,7 @@
 import * as core from '@actions/core';
 import * as exec from '@actions/exec';
 import * as glob from '@actions/glob';
-import { TestChimpService, CIFileHandler, createProjectApiKeyAuth, createAuthConfigFromEnv } from './core';
+import { TestChimpService, CIFileHandler, createProjectApiKeyAuth, createAuthConfigFromEnv } from 'testchimp-runner-core';
 import { GitHubCIPipelineFactory, SuccessCriteria } from './github-pipeline';
 
 function getBackendUrl(): string {
@@ -86,9 +86,9 @@ async function run(): Promise<void> {
     const backendUrl = getBackendUrl();
     core.info(`TestChimp: Using backend URL: ${backendUrl}`);
 
-    // Initialize TestChimp service with CI file handler (creates PRs instead of direct writes)
+    // Initialize TestChimp service with CI file handler
     // Use the repository workspace as the base path for relative path resolution
-    const ciFileHandler = new CIFileHandler('./testchimp-artifacts', workspace);
+    const ciFileHandler = new CIFileHandler(workspace);
     const testChimpService = new TestChimpService(ciFileHandler, authConfig || undefined, backendUrl);
     await testChimpService.initialize();
 
@@ -149,6 +149,7 @@ async function run(): Promise<void> {
     let repairedCount = 0;
     let repairedAboveThreshold = 0;
     let repairedBelowThreshold = 0;
+    const repairedFiles = new Map<string, string>(); // Map of file path to updated content
 
     core.info(`TestChimp: Using success criteria: ${successCriteria}`);
     core.info(`TestChimp: Attempt AI repair: ${attemptAIRepair}`);
@@ -173,6 +174,12 @@ async function run(): Promise<void> {
         };
 
         const result = await testChimpService.executeScript(request);
+        
+        // Collect repaired files for PR creation
+        if (result.repair_status === 'success' && result.updated_script) {
+          repairedFiles.set(relativeTestFile, result.updated_script);
+          core.info(`TestChimp: 📝 ${testFile} - Repaired and queued for PR`);
+        }
         
         // Determine if this test should be considered successful based on criteria
         let isSuccessful = false;
@@ -266,7 +273,6 @@ async function run(): Promise<void> {
     core.info(`  Success Criteria: ${successCriteriaUsed}`);
 
     // Check if any files were repaired and create PR if needed
-    const repairedFiles = ciFileHandler.getRepairedFiles();
     if (repairedFiles.size > 0) {
       core.info(`TestChimp: ${repairedFiles.size} files were repaired. Creating PR...`);
       
