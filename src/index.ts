@@ -4,9 +4,10 @@ import * as glob from '@actions/glob';
 import { TestChimpService, CIFileHandler, createProjectApiKeyAuth, createAuthConfigFromEnv } from 'testchimp-runner-core';
 import { GitHubCIPipelineFactory, SuccessCriteria } from './github-pipeline';
 
-function getBackendUrl(): string {
+function getBackendUrl(testchimpEnv?: string): string {
   // Check if we're in staging environment by looking for staging indicators
-  const isStaging = process.env.NODE_ENV === 'staging' || 
+  const isStaging = testchimpEnv === 'staging' ||
+                   process.env.NODE_ENV === 'staging' || 
                    process.env.TESTCHIMP_ENV === 'staging' ||
                    process.env.GITHUB_REF?.includes('staging') ||
                    process.env.GITHUB_HEAD_REF?.includes('staging');
@@ -41,6 +42,7 @@ async function run(): Promise<void> {
     const excludePattern = getInput('exclude-pattern', '**/node_modules/**');
     const mode = getInput('mode', 'RUN_WITH_AI_REPAIR');
     const deflakeRuns = parseInt(getInput('deflake-runs', '2'));
+    const testchimpEnv = getInput('testchimp-env', 'prod');
     // In GitHub Actions, always run headless (no display server available)
     const isGitHubActions = process.env.GITHUB_ACTIONS === 'true';
     const headless = true; // Always run headless in CI/CD
@@ -83,7 +85,7 @@ async function run(): Promise<void> {
     }
 
     // Determine backend URL based on environment
-    const backendUrl = getBackendUrl();
+    const backendUrl = getBackendUrl(testchimpEnv);
     core.info(`TestChimp: Using backend URL: ${backendUrl}`);
 
     // Initialize TestChimp service with CI file handler

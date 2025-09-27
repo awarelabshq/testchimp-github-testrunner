@@ -58,6 +58,11 @@ inputs:
     required: false
     default: '2'
   
+  testchimp-env:
+    description: 'TestChimp environment (staging or prod)'
+    required: false
+    default: 'prod'
+  
   
 runs:
   using: 'composite'
@@ -128,9 +133,10 @@ runs:
         export INPUT_SUCCESS_CRITERIA="${{ inputs.success-criteria }}"
         export INPUT_REPAIR_CONFIDENCE_THRESHOLD="${{ inputs.repair-confidence-threshold }}"
         export INPUT_ATTEMPT_AI_REPAIR="${{ inputs.attempt-ai-repair }}"
+        export INPUT_TESTCHIMP_ENV="${{ inputs.testchimp-env }}"
         
         # Pass environment variables
-        export TESTCHIMP_ENV="${{ env.TESTCHIMP_ENV }}"
+        export TESTCHIMP_ENV="${{ inputs.testchimp-env || env.TESTCHIMP_ENV }}"
         export NODE_ENV="${{ env.NODE_ENV }}"
         
         # Run the action and set outputs (from action directory where dependencies are installed)
