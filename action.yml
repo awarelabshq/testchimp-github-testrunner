@@ -38,11 +38,6 @@ inputs:
     required: false
     default: 'true'
   
-  recursive:
-    description: 'Search for test files recursively in subdirectories (true/false)'
-    required: false
-    default: 'false'
-  
   include-pattern:
     description: 'Glob pattern for test files to include'
     required: false
@@ -119,7 +114,6 @@ runs:
         export INPUT_API_KEY="${{ inputs.api-key }}"
         export INPUT_PROJECT_ID="${{ inputs.project-id }}"
         export INPUT_TEST_DIRECTORY="${{ inputs.test-directory }}"
-        export INPUT_RECURSIVE="${{ inputs.recursive }}"
         export INPUT_INCLUDE_PATTERN="${{ inputs.include-pattern }}"
         export INPUT_EXCLUDE_PATTERN="${{ inputs.exclude-pattern }}"
         export INPUT_MODE="${{ inputs.mode }}"
@@ -136,7 +130,7 @@ runs:
         cd ${{ github.workspace }}
         
         # Run the action and set outputs
-        npx ts-node ${{ github.action_path }}/src/index.ts
+        node ${{ github.action_path }}/dist/index.js
         
         # Set outputs from JSON file
         if [ -f "testchimp-outputs.json" ]; then
