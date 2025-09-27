@@ -58,7 +58,7 @@ async function run(): Promise<void> {
     const workspace = process.env.GITHUB_WORKSPACE || process.cwd();
     const absTestDirectories = testDirectories.map(dir => {
       const path = require('path');
-      return path.isAbsolute(dir) ? dir : path.join(workspace, dir);
+      return path.isAbsolute(String(dir)) ? String(dir) : path.join(String(workspace), String(dir));
     });
 
 
@@ -164,7 +164,7 @@ async function run(): Promise<void> {
         // Convert absolute path to relative path for the file handler
         const path = require('path');
         // Make script path relative to the repository workspace
-        const relativeTestFile = String(path.relative(workspace, testFile));
+        const relativeTestFile = String(path.relative(String(workspace), String(testFile)));
         
         const request = {
           scriptFilePath: relativeTestFile,

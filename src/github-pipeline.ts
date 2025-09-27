@@ -227,10 +227,10 @@ export class GitHubCIPipeline implements CIPipeline {
       // Write repaired files
       for (const [filePath, content] of testResults.repairedFiles) {
         // Resolve file path relative to the repository workspace
-        const workspace = process.env.GITHUB_WORKSPACE || process.cwd();
+        const workspace = String(process.env.GITHUB_WORKSPACE || process.cwd());
         const stringFilePath = String(filePath);
         const fullPath = path.isAbsolute(stringFilePath) ? stringFilePath : path.join(workspace, stringFilePath);
-        const dir = path.dirname(fullPath);
+        const dir = path.dirname(String(fullPath));
         
         // Ensure directory exists
         if (!fs.existsSync(dir)) {
