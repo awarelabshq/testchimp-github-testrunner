@@ -36,13 +36,15 @@ export class GitHubGitOperations implements GitOperations {
 
   async initialize(): Promise<void> {
     // Configure git user
-    await exec.exec('git', ['config', 'user.name', this.config.git.userName]);
-    await exec.exec('git', ['config', 'user.email', this.config.git.userEmail]);
+    const workspace = String(process.env.GITHUB_WORKSPACE || process.cwd());
+    await exec.exec('git', ['config', 'user.name', this.config.git.userName], { cwd: workspace });
+    await exec.exec('git', ['config', 'user.email', this.config.git.userEmail], { cwd: workspace });
   }
 
   async isGitRepository(): Promise<boolean> {
     try {
-      await exec.exec('git', ['rev-parse', '--git-dir'], { silent: true });
+      const workspace = String(process.env.GITHUB_WORKSPACE || process.cwd());
+      await exec.exec('git', ['rev-parse', '--git-dir'], { silent: true, cwd: workspace });
       return true;
     } catch {
       return false;
@@ -50,13 +52,15 @@ export class GitHubGitOperations implements GitOperations {
   }
 
   async getCurrentBranch(): Promise<string> {
-    const { stdout } = await exec.getExecOutput('git', ['branch', '--show-current']);
+    const workspace = String(process.env.GITHUB_WORKSPACE || process.cwd());
+    const { stdout } = await exec.getExecOutput('git', ['branch', '--show-current'], { cwd: workspace });
     return stdout.trim();
   }
 
   async branchExists(branchName: string): Promise<boolean> {
     try {
-      await exec.exec('git', ['show-ref', '--verify', '--quiet', `refs/heads/${branchName}`], { silent: true });
+      const workspace = String(process.env.GITHUB_WORKSPACE || process.cwd());
+      await exec.exec('git', ['show-ref', '--verify', '--quiet', `refs/heads/${branchName}`], { silent: true, cwd: workspace });
       return true;
     } catch {
       return false;
@@ -64,41 +68,47 @@ export class GitHubGitOperations implements GitOperations {
   }
 
   async createBranch(branchInfo: BranchInfo): Promise<void> {
+    const workspace = String(process.env.GITHUB_WORKSPACE || process.cwd());
     if (branchInfo.exists) {
       await this.checkoutBranch(branchInfo.name);
     } else {
-      await exec.exec('git', ['checkout', '-b', branchInfo.name, branchInfo.baseBranch]);
+      await exec.exec('git', ['checkout', '-b', branchInfo.name, branchInfo.baseBranch], { cwd: workspace });
     }
   }
 
   async checkoutBranch(branchName: string): Promise<void> {
-    await exec.exec('git', ['checkout', branchName]);
+    const workspace = String(process.env.GITHUB_WORKSPACE || process.cwd());
+    await exec.exec('git', ['checkout', branchName], { cwd: workspace });
   }
 
   async addFiles(files: string[]): Promise<void> {
+    const workspace = String(process.env.GITHUB_WORKSPACE || process.cwd());
     for (const file of files) {
-      await exec.exec('git', ['add', file]);
+      await exec.exec('git', ['add', file], { cwd: workspace });
     }
   }
 
   async commit(commitInfo: CommitInfo): Promise<void> {
+    const workspace = String(process.env.GITHUB_WORKSPACE || process.cwd());
     const args = ['commit', '-m', commitInfo.message];
     if (commitInfo.amend) {
       args.push('--amend');
     }
-    await exec.exec('git', args);
+    await exec.exec('git', args, { cwd: workspace });
   }
 
   async pushBranch(branchName: string, force: boolean = false): Promise<void> {
+    const workspace = String(process.env.GITHUB_WORKSPACE || process.cwd());
     const args = ['push', 'origin', branchName];
     if (force) {
       args.push('--force');
     }
-    await exec.exec('git', args);
+    await exec.exec('git', args, { cwd: workspace });
   }
 
   async getRepositoryUrl(): Promise<string> {
-    const { stdout } = await exec.getExecOutput('git', ['config', '--get', 'remote.origin.url']);
+    const workspace = String(process.env.GITHUB_WORKSPACE || process.cwd());
+    const { stdout } = await exec.getExecOutput('git', ['config', '--get', 'remote.origin.url'], { cwd: workspace });
     return stdout.trim();
   }
 
