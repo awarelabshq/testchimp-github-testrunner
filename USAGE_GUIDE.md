@@ -64,7 +64,7 @@ jobs:
           test-directory: "ui/tests,services/tests"
           success-criteria: "REPAIR_SUCCESS_WITH_CONFIDENCE"
           repair-confidence-threshold: "4"
-          max-workers: "10"
+          max-workers: "3"
           create-pr-on-repair: "true"
 ```
 
@@ -146,7 +146,7 @@ jobs:
           test-directory: "ui/tests,services/tests"
           success-criteria: "REPAIR_SUCCESS_WITH_CONFIDENCE"
           repair-confidence-threshold: "4"
-          max-workers: "10"
+          max-workers: "3"
           create-pr-on-repair: "true"
 ```
 
@@ -171,7 +171,7 @@ jobs:
 | `create-pr-on-repair` | `true` | Create PR when files are repaired |
 | `attempt-ai-repair` | `true` | Attempt AI repair on failed tests |
 | `deflake-runs` | `2` | Number of deflake runs to attempt |
-| `max-workers` | `10` | Maximum number of concurrent workers for test execution |
+| `max-workers` | `3` | Maximum number of concurrent workers for test execution |
 
 ### Success Criteria
 

@@ -43,7 +43,7 @@ async function run(): Promise<void> {
     const mode = getInput('mode', 'RUN_WITH_AI_REPAIR');
     const deflakeRuns = parseInt(getInput('deflake-runs', '2'));
     const testchimpEnv = getInput('testchimp-env', 'prod');
-    const maxWorkers = parseInt(getInput('max-workers', '10'));
+    const maxWorkers = parseInt(getInput('max-workers', '3'));
     // In GitHub Actions, always run headless (no display server available)
     const isGitHubActions = process.env.GITHUB_ACTIONS === 'true';
     const headless = true; // Always run headless in CI/CD
@@ -201,10 +201,10 @@ async function run(): Promise<void> {
           core.info(`TestChimp: ✅ ${testFile} - SUCCESS (repaired with confidence ${result.repair_confidence})`);
         } else if (result.repair_status === 'success' || result.repair_status === 'partial') {
           // Repair was attempted but doesn't meet success criteria
-          if ((result.repair_confidence || 0) >= repairConfidenceThreshold) {
+          if ((result.repair_confidence || 0) < repairConfidenceThreshold) {
             core.error(`TestChimp: ❌ ${testFile} - REPAIR FAILED: confidence ${result.repair_confidence} < threshold ${repairConfidenceThreshold}`);
           } else {
-            core.error(`TestChimp: ❌ ${testFile} - REPAIR FAILED: confidence ${result.repair_confidence} < threshold ${repairConfidenceThreshold}`);
+            core.error(`TestChimp: ❌ ${testFile} - REPAIR FAILED: confidence ${result.repair_confidence} >= threshold ${repairConfidenceThreshold} but success criteria not met`);
           }
         } else {
           // No repair or repair failed
