@@ -1,6 +1,6 @@
 {
   "name": "testchimp-runner-action",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "description": "GitHub Action for TestChimp AI test repair",
   "main": "dist/index.js",
   "scripts": {
