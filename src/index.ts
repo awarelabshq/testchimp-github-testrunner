@@ -210,6 +210,16 @@ async function run(): Promise<void> {
           // No repair or repair failed
           core.error(`TestChimp: ❌ ${testFile} - FAILED: ${result.error || 'No repair available'}`);
         }
+
+        // Report credit usage for successful AI repairs
+        if (isSuccessful && (result.repair_status === 'success' || result.repair_status === 'partial')) {
+          try {
+            await testChimpService.reportAIRepairCredit();
+            core.info(`TestChimp: Credit usage reported for AI repair of ${testFile}`);
+          } catch (error) {
+            core.warning(`TestChimp: Failed to report credit usage for ${testFile}: ${error}`);
+          }
+        }
         
         return {
           testFile,

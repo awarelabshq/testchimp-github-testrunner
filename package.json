@@ -1,6 +1,6 @@
 {
   "name": "testchimp-runner-action",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "description": "GitHub Action for TestChimp AI test repair",
   "main": "dist/index.js",
   "scripts": {
@@ -20,7 +20,7 @@
     "dotenv": "^17.2.2",
     "esbuild": "^0.25.10",
     "playwright": "^1.55.1",
-    "testchimp-runner-core": "^0.0.12"
+    "testchimp-runner-core": "^0.0.13"
   },
   "devDependencies": {
     "@types/node": "^20.10.0",
