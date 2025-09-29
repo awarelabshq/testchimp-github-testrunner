@@ -76,7 +76,6 @@ Push your code or create a pull request - TestChimp will automatically:
 | `success-criteria` | `ORIGINAL_SUCCESS` | Success criteria (`ORIGINAL_SUCCESS` or `REPAIR_SUCCESS_WITH_CONFIDENCE`) |
 | `repair-confidence-threshold` | `4` | Minimum confidence score (1-5) for repair success |
 | `mode` | `RUN_WITH_AI_REPAIR` | Execution mode |
-| `headless` | `true` | Run browser in headless mode |
 | `deflake-runs` | `2` | Number of deflake runs to attempt |
 
 ## Success Criteria
