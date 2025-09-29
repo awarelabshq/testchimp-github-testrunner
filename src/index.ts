@@ -139,6 +139,24 @@ async function run(): Promise<void> {
     // Use the repository workspace as the base path for relative path resolution
     const ciFileHandler = new CIFileHandler(workspace);
     const testChimpService = new TestChimpService(ciFileHandler, authConfig || undefined, backendUrl, maxWorkers);
+    
+    // Set up logger for runner-core to use GitHub Actions logging
+    testChimpService.setLogger((message: string, level?: 'log' | 'error' | 'warn') => {
+      const prefix = 'TestChimp: ';
+      switch (level) {
+        case 'error':
+          core.error(prefix + message);
+          break;
+        case 'warn':
+          core.warning(prefix + message);
+          break;
+        case 'log':
+        default:
+          core.info(prefix + message);
+          break;
+      }
+    });
+    
     await testChimpService.initialize();
 
     // Find TestChimp managed tests across all directories using correct detection logic
