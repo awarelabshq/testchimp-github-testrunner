@@ -1,7 +1,7 @@
 import * as core from '@actions/core';
 import * as exec from '@actions/exec';
 import * as glob from '@actions/glob';
-import { TestChimpService, CIFileHandler, createProjectApiKeyAuth, createAuthConfigFromEnv } from 'testchimp-runner-core';
+import { TestChimpService, CIFileHandler, createProjectApiKeyAuth, createAuthConfigFromEnv, isTestChimpManagedTest } from 'testchimp-runner-core';
 import { GitHubCIPipelineFactory, SuccessCriteria } from './github-pipeline';
 
 function getBackendUrl(testchimpEnv?: string): string {
@@ -18,6 +18,52 @@ function getBackendUrl(testchimpEnv?: string): string {
   
   // Default to production
   return 'https://featureservice.testchimp.io';
+}
+
+function findTestChimpManagedTests(directory: string, recursive: boolean = true): string[] {
+  const fs = require('fs');
+  const path = require('path');
+  
+  const testFiles: string[] = [];
+  
+  function scanDir(dir: string) {
+    try {
+      const items = fs.readdirSync(String(dir));
+      
+      for (const item of items) {
+        const fullPath = path.join(String(dir), String(item));
+        const stat = fs.statSync(String(fullPath));
+        
+        if (stat.isDirectory() && recursive) {
+          scanDir(fullPath);
+        } else if (stat.isFile() && isTestChimpManaged(fullPath)) {
+          testFiles.push(fullPath);
+        }
+      }
+    } catch (error) {
+      // Skip directories that can't be read
+    }
+  }
+  
+  function isTestChimpManaged(filePath: string): boolean {
+    // Check if file is a test file
+    if (!filePath.match(/\.(spec|test)\.(js|ts)$/)) {
+      return false;
+    }
+    
+    try {
+      // Read file content
+      const content = fs.readFileSync(filePath, 'utf8');
+      
+      // Use the correct TestChimp managed test detection logic
+      return isTestChimpManagedTest(content);
+    } catch (error) {
+      return false;
+    }
+  }
+  
+  scanDir(directory);
+  return testFiles;
 }
 
 async function run(): Promise<void> {
@@ -95,11 +141,11 @@ async function run(): Promise<void> {
     const testChimpService = new TestChimpService(ciFileHandler, authConfig || undefined, backendUrl, maxWorkers);
     await testChimpService.initialize();
 
-    // Find TestChimp managed tests across all directories
+    // Find TestChimp managed tests across all directories using correct detection logic
     const allTestFiles: string[] = [];
     for (const testDir of absTestDirectories) {
       core.info(`TestChimp: Scanning ${testDir}...`);
-      const dirTestFiles = testChimpService.findTestChimpTests(testDir, recursive);
+      const dirTestFiles = findTestChimpManagedTests(testDir, recursive);
       allTestFiles.push(...dirTestFiles);
       core.info(`TestChimp: Found ${dirTestFiles.length} tests in ${testDir}`);
     }
