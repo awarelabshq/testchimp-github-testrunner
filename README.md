@@ -23,21 +23,32 @@ Add these secrets to your repository:
 
 ### 2. Add the Action to Your Workflow
 
-Create `.github/workflows/testchimp.yml`:
+Create `.github/workflows/run_tests.yml`:
 
 ```yaml
 name: TestChimp AI Test Repair
 on: [push, pull_request]
 jobs:
-  testchimp:
+  testchimp-tests:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
-      - uses: actions/checkout@v4
-      - name: TestChimp AI Repair
-        uses: testchimp/testchimp-github-action@v1.0.0
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run TestChimp Tests with AI Repair
+        id: testchimp
+        uses: awarelabshq/testchimp-github-testrunner@v1.0.16
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           api-key: ${{ secrets.TESTCHIMP_API_KEY }}
           project-id: ${{ secrets.TESTCHIMP_PROJECT_ID }}
+          test-directory: "tests"
+          success-criteria: "REPAIR_SUCCESS_WITH_CONFIDENCE"
+          repair-confidence-threshold: "4"
 ```
 
 ### 3. Run Your Tests
