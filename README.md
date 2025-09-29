@@ -178,8 +178,8 @@ The action provides detailed logging:
 ## Support
 
 - 📖 [Full Documentation](SUCCESS_CRITERIA.md)
-- 🐛 [Report Issues](https://github.com/testchimp/testchimp-github-action/issues)
-- 💬 [Ask Questions](https://github.com/testchimp/testchimp-github-action/discussions)
+- 🐛 [Report Issues](https://github.com/awarelabshq/testchimp-github-testrunner/issues)
+- 💬 [Ask Questions](https://github.com/awarelabshq/testchimp-github-testrunner/discussions)
 
 ## License
 
