@@ -45,8 +45,8 @@ function findTestChimpManagedTests(directory: string, recursive: boolean = true)
   }
   
   function isTestChimpManaged(filePath: string): boolean {
-    // Check if file is a test file
-    if (!filePath.match(/\.(spec|test)\.(js|ts)$/)) {
+    // Check if file is a smart test file (only .smart.spec.js files)
+    if (!filePath.match(/\.smart\.spec\.(js|ts)$/)) {
       return false;
     }
     
