@@ -38,15 +38,6 @@ inputs:
     required: false
     default: 'true'
   
-  include-pattern:
-    description: 'Glob pattern for test files to include'
-    required: false
-    default: '**/*.spec.{js,ts}'
-  
-  exclude-pattern:
-    description: 'Glob pattern for files/directories to exclude'
-    required: false
-    default: '**/node_modules/**'
   
   mode:
     description: 'Test execution mode (RUN_EXACTLY, RUN_WITH_AI_REPAIR)'
@@ -131,8 +122,6 @@ runs:
         export INPUT_API_KEY="${{ inputs.api-key }}"
         export INPUT_PROJECT_ID="${{ inputs.project-id }}"
         export INPUT_TEST_DIRECTORY="${{ inputs.test-directory }}"
-        export INPUT_INCLUDE_PATTERN="${{ inputs.include-pattern }}"
-        export INPUT_EXCLUDE_PATTERN="${{ inputs.exclude-pattern }}"
         export INPUT_MODE="${{ inputs.mode }}"
         export INPUT_DEFLAKE_RUNS="${{ inputs.deflake-runs }}"
         export INPUT_SUCCESS_CRITERIA="${{ inputs.success-criteria }}"

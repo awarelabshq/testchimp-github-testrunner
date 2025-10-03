@@ -1,6 +1,5 @@
 import * as core from '@actions/core';
 import * as exec from '@actions/exec';
-import * as glob from '@actions/glob';
 import { TestChimpService, CIFileHandler, createProjectApiKeyAuth, createAuthConfigFromEnv, isTestChimpManagedTest } from 'testchimp-runner-core';
 import { GitHubCIPipelineFactory, SuccessCriteria } from './github-pipeline';
 
@@ -84,8 +83,6 @@ async function run(): Promise<void> {
     const testDirectoryInput = getInput('test-directory', 'tests');
     const testDirectories = testDirectoryInput.split(',').map(dir => dir.trim()).filter(dir => dir.length > 0);
     const recursive = getInput('recursive', 'false') === 'true';
-    const includePattern = getInput('include-pattern', '**/*.spec.{js,ts}');
-    const excludePattern = getInput('exclude-pattern', '**/node_modules/**');
     const mode = getInput('mode', 'RUN_WITH_AI_REPAIR');
     const deflakeRuns = parseInt(getInput('deflake-runs', '2'));
     const testchimpEnv = getInput('testchimp-env', 'prod');
