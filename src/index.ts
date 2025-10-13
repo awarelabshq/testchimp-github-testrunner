@@ -1,6 +1,15 @@
 import * as core from '@actions/core';
 import * as exec from '@actions/exec';
-import { TestChimpService, CIFileHandler, createProjectApiKeyAuth, createAuthConfigFromEnv, isTestChimpManagedTest } from 'testchimp-runner-core';
+import { 
+  TestChimpService, 
+  CIFileHandler, 
+  createProjectApiKeyAuth, 
+  createAuthConfigFromEnv, 
+  isTestChimpManagedTest,
+  BackendProxyLLMProvider,
+  StepExecutionStatus
+} from 'testchimp-runner-core';
+import type { ProgressReporter, StepProgress, JobProgress } from 'testchimp-runner-core';
 import { GitHubCIPipelineFactory, SuccessCriteria } from './github-pipeline';
 
 function getBackendUrl(testchimpEnv?: string): string {
@@ -132,26 +141,58 @@ async function run(): Promise<void> {
     const backendUrl = getBackendUrl(testchimpEnv);
     core.info(`TestChimp: Using backend URL: ${backendUrl}`);
 
-    // Initialize TestChimp service with CI file handler
+    // Create progress reporter for GitHub Actions
+    const progressReporter: ProgressReporter = {
+      async onStepProgress(progress: StepProgress) {
+        const emoji = progress.status === StepExecutionStatus.SUCCESS ? '✅' : 
+                      progress.status === StepExecutionStatus.FAILURE ? '❌' : '🔄';
+        core.info(`${emoji} Step ${progress.stepNumber}: ${progress.description}`);
+        if (progress.code) {
+          core.info(`   Command: ${progress.code}`);
+        }
+        if (progress.error) {
+          core.error(`   Error: ${progress.error}`);
+        }
+      },
+      
+      async onJobProgress(progress: JobProgress) {
+        core.info(`📊 Job ${progress.jobId}: ${progress.status}`);
+        if (progress.totalSteps) {
+          core.info(`   Progress: ${progress.currentStep}/${progress.totalSteps}`);
+        }
+      },
+      
+      log(message: string, level?: 'log' | 'error' | 'warn') {
+        const prefix = 'TestChimp: ';
+        switch (level) {
+          case 'error':
+            core.error(prefix + message);
+            break;
+          case 'warn':
+            core.warning(prefix + message);
+            break;
+          default:
+            core.info(prefix + message);
+            break;
+        }
+      }
+    };
+
+    // Initialize TestChimp service with CI file handler and progress reporter
     // Use the repository workspace as the base path for relative path resolution
     const ciFileHandler = new CIFileHandler(workspace);
-    const testChimpService = new TestChimpService(ciFileHandler, authConfig || undefined, backendUrl, maxWorkers);
+    const testChimpService = new TestChimpService(
+      ciFileHandler,
+      authConfig || undefined,
+      backendUrl,
+      maxWorkers,
+      undefined, // LLM provider (will default to BackendProxyLLMProvider)
+      progressReporter // NEW: explicit progress reporter
+    );
     
-    // Set up logger for runner-core to use GitHub Actions logging
+    // Set up logger for runner-core (also routed through progress reporter)
     testChimpService.setLogger((message: string, level?: 'log' | 'error' | 'warn') => {
-      const prefix = 'TestChimp: ';
-      switch (level) {
-        case 'error':
-          core.error(prefix + message);
-          break;
-        case 'warn':
-          core.warning(prefix + message);
-          break;
-        case 'log':
-        default:
-          core.info(prefix + message);
-          break;
-      }
+      progressReporter.log?.(message, level);
     });
     
     await testChimpService.initialize();
