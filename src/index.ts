@@ -76,6 +76,9 @@ function findTestChimpManagedTests(directory: string, recursive: boolean = true)
 
 async function run(): Promise<void> {
   try {
+    // Import path and fs modules once at the top of the function
+    const path = require('path');
+    const fs = require('fs');
 
     // Helper function to get input from either core.getInput or environment variables
     const getInput = (name: string, defaultValue: string = ''): string => {
@@ -96,6 +99,7 @@ async function run(): Promise<void> {
     const deflakeRuns = parseInt(getInput('deflake-runs', '2'));
     const testchimpEnv = getInput('testchimp-env', 'prod');
     const maxWorkers = parseInt(getInput('max-workers', '3'));
+    const fixturesDirectoryInput = getInput('fixtures-directory', '');
     // In GitHub Actions, always run headless (no display server available)
     const isGitHubActions = process.env.GITHUB_ACTIONS === 'true';
     const headless = true; // Always run headless in CI/CD
@@ -112,9 +116,24 @@ async function run(): Promise<void> {
     // Resolve directories relative to the repository workspace so we scan repo files, not action files
     const workspace = process.env.GITHUB_WORKSPACE || process.cwd();
     const absTestDirectories = testDirectories.map(dir => {
-      const path = require('path');
       return path.isAbsolute(String(dir)) ? String(dir) : path.join(String(workspace), String(dir));
     });
+    
+    // Resolve fixtures directory to absolute path (same pattern as test directories)
+    let absFixturesDir: string | undefined = undefined;
+    if (fixturesDirectoryInput && fixturesDirectoryInput.trim().length > 0) {
+      const fixturesDir = fixturesDirectoryInput.trim();
+      absFixturesDir = path.isAbsolute(fixturesDir) 
+        ? fixturesDir 
+        : path.join(String(workspace), fixturesDir);
+      
+      // Validate fixtures directory exists (warn if missing, but don't fail)
+      if (!fs.existsSync(absFixturesDir)) {
+        core.warning(`TestChimp: Fixtures directory not found: ${absFixturesDir}. File uploads with relative paths may fail.`);
+      } else {
+        core.info(`TestChimp: Using fixtures directory: ${absFixturesDir}`);
+      }
+    }
 
 
     // Set up authentication configuration
@@ -221,7 +240,6 @@ async function run(): Promise<void> {
       core.setOutput('success-criteria-used', successCriteria);
       
       // Write outputs to file for composite action
-      const fs = require('fs');
       const outputs = {
         status: 'skipped',
         testCount: '0',
@@ -269,7 +287,6 @@ async function run(): Promise<void> {
       
       try {
         // Convert absolute path to relative path for the file handler
-        const path = require('path');
         // Make script path relative to the repository workspace
         const relativeTestFile = String(path.relative(String(workspace), String(testFile)));
         
@@ -277,7 +294,8 @@ async function run(): Promise<void> {
           scriptFilePath: relativeTestFile,
           mode: attemptAIRepair ? mode : 'RUN_EXACTLY',
           headless: headless,
-          deflake_run_count: deflakeRuns
+          deflake_run_count: deflakeRuns,
+          tempDir: absFixturesDir  // Pass absolute path to fixtures directory for file upload support
         };
 
         const result = await testChimpService.executeScript(request);
@@ -373,7 +391,6 @@ async function run(): Promise<void> {
     core.setOutput('success-criteria-used', successCriteriaUsed);
     
     // Write outputs to file for composite action
-    const fs = require('fs');
     const outputs = {
       status,
       testCount,

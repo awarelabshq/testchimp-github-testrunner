@@ -86,6 +86,7 @@ Push your code or create a pull request - TestChimp will automatically:
 | `mode` | `RUN_WITH_AI_REPAIR` | Execution mode |
 | `deflake-runs` | `2` | Number of deflake runs to attempt |
 | `max-workers` | `4` | Maximum number of parallel test workers (1-10) |
+| `fixtures-directory` | (empty) | Directory containing fixture files for file uploads (relative to repository root). Required if tests use `setInputFiles()` with relative paths. |
 
 ## Success Criteria
 
@@ -103,6 +104,36 @@ Tests that either pass originally OR are successfully repaired with sufficient c
 success-criteria: 'REPAIR_SUCCESS_WITH_CONFIDENCE'
 repair-confidence-threshold: '4'  # 1-5 scale
 ```
+
+## File Upload Support
+
+### Fixtures Directory
+
+If your tests use `setInputFiles()` with relative file paths (e.g., `'fixtures/file.pdf'`), you need to configure the `fixtures-directory` parameter to tell the action where your fixture files are located.
+
+**How it works:**
+- The action resolves the fixtures directory relative to your repository root
+- Runner-core uses this directory to resolve relative file paths in `setInputFiles()` calls
+- Absolute file paths are used as-is (not modified)
+
+**Example:**
+```yaml
+- name: TestChimp AI Repair
+  uses: awarelabshq/testchimp-github-testrunner@v1.0.16
+  with:
+    api-key: ${{ secrets.TESTCHIMP_API_KEY }}
+    project-id: ${{ secrets.TESTCHIMP_PROJECT_ID }}
+    test-directory: 'tests'
+    fixtures-directory: 'fixtures'  # Relative to repo root
+```
+
+**In your test:**
+```typescript
+// This will resolve to: <repo-root>/fixtures/document.pdf
+await page.setInputFiles('input[type="file"]', 'fixtures/document.pdf');
+```
+
+**Note:** If `fixtures-directory` is not specified and your tests use relative paths in `setInputFiles()`, the file uploads will fail. Absolute paths work without configuration.
 
 ## Parallel Execution
 
@@ -182,6 +213,7 @@ jobs:
           api-key: ${{ secrets.TESTCHIMP_API_KEY }}
           project-id: ${{ secrets.TESTCHIMP_PROJECT_ID }}
           test-directory: 'e2e-tests'
+          fixtures-directory: 'fixtures'  # For file upload support
           success-criteria: 'REPAIR_SUCCESS_WITH_CONFIDENCE'
           repair-confidence-threshold: '3'
           max-workers: '6'

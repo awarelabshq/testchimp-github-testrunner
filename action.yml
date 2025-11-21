@@ -59,6 +59,10 @@ inputs:
     required: false
     default: '3'
   
+  fixtures-directory:
+    description: 'Directory containing fixture files for file uploads (relative to repository root). If not specified, file uploads with relative paths will fail.'
+    required: false
+    default: ''
   
 runs:
   using: 'composite'
@@ -129,6 +133,7 @@ runs:
         export INPUT_ATTEMPT_AI_REPAIR="${{ inputs.attempt-ai-repair }}"
         export INPUT_TESTCHIMP_ENV="${{ inputs.testchimp-env }}"
         export INPUT_MAX_WORKERS="${{ inputs.max-workers }}"
+        export INPUT_FIXTURES_DIRECTORY="${{ inputs.fixtures-directory }}"
         
         # Pass environment variables
         export TESTCHIMP_ENV="${{ env.TESTCHIMP_ENV || inputs.testchimp-env }}"
