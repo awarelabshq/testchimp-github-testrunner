@@ -301,30 +301,30 @@ async function run(): Promise<void> {
         const result = await testChimpService.executeScript(request);
         
         // Collect repaired files for PR creation
-        if (result.repair_status === 'success' && result.updated_script) {
-          repairedFiles.set(relativeTestFile, result.updated_script);
+        if (result.repairStatus === 'success' && result.updatedScript) {
+          repairedFiles.set(relativeTestFile, result.updatedScript);
           core.info(`TestChimp: 📝 ${testFile} - Repaired and queued for PR`);
         }
         
         // Determine if this test should be considered successful based on criteria
         let isSuccessful = false;
         
-        if (result.run_status === 'success') {
+        if (result.runStatus === 'success') {
           // Original test passed
           isSuccessful = true;
           core.info(`TestChimp: ✅ ${testFile} - SUCCESS (original)`);
         } else if (successCriteria === SuccessCriteria.REPAIR_SUCCESS_WITH_CONFIDENCE && 
-                   result.repair_status === 'success' && 
-                   (result.repair_confidence || 0) >= repairConfidenceThreshold) {
+                   result.repairStatus === 'success' && 
+                   (result.repairConfidence || 0) >= repairConfidenceThreshold) {
           // Original failed but repair succeeded with sufficient confidence
           isSuccessful = true;
-          core.info(`TestChimp: ✅ ${testFile} - SUCCESS (repaired with confidence ${result.repair_confidence})`);
-        } else if (result.repair_status === 'success' || result.repair_status === 'partial') {
+          core.info(`TestChimp: ✅ ${testFile} - SUCCESS (repaired with confidence ${result.repairConfidence})`);
+        } else if (result.repairStatus === 'success' || result.repairStatus === 'partial') {
           // Repair was attempted but doesn't meet success criteria
-          if ((result.repair_confidence || 0) < repairConfidenceThreshold) {
-            core.error(`TestChimp: ❌ ${testFile} - REPAIR FAILED: confidence ${result.repair_confidence} < threshold ${repairConfidenceThreshold}`);
+          if ((result.repairConfidence || 0) < repairConfidenceThreshold) {
+            core.error(`TestChimp: ❌ ${testFile} - REPAIR FAILED: confidence ${result.repairConfidence} < threshold ${repairConfidenceThreshold}`);
           } else {
-            core.error(`TestChimp: ❌ ${testFile} - REPAIR FAILED: confidence ${result.repair_confidence} >= threshold ${repairConfidenceThreshold} but success criteria not met`);
+            core.error(`TestChimp: ❌ ${testFile} - REPAIR FAILED: confidence ${result.repairConfidence} >= threshold ${repairConfidenceThreshold} but success criteria not met`);
           }
         } else {
           // No repair or repair failed
@@ -361,9 +361,9 @@ async function run(): Promise<void> {
       }
       
       // Count repairs
-      if (result && (result.repair_status === 'success' || result.repair_status === 'partial')) {
+      if (result && (result.repairStatus === 'success' || result.repairStatus === 'partial')) {
         repairedCount++;
-        if ((result.repair_confidence || 0) >= repairConfidenceThreshold) {
+        if ((result.repairConfidence || 0) >= repairConfidenceThreshold) {
           repairedAboveThreshold++;
         } else {
           repairedBelowThreshold++;
